@@ -2,6 +2,7 @@ package dev.kikugie.commandconfig.impl.config;
 
 import dev.kikugie.commandconfig.api.OptionValue;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -16,7 +17,7 @@ public class OptionValueImpl<T> implements OptionValue<T> {
     }
 
     @Override
-    public Text set(T val) {
+    public Text set(@NotNull T val) {
         return setter.apply(val);
     }
 

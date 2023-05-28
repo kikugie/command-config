@@ -2,11 +2,16 @@ package dev.kikugie.commandconfig.impl.config;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import dev.kikugie.commandconfig.Reference;
 import dev.kikugie.commandconfig.api.CategoryBuilder;
 import dev.kikugie.commandconfig.api.CommandConfigBuilder;
+import dev.kikugie.commandconfig.api.CommandNode;
 import dev.kikugie.commandconfig.api.OptionBuilder;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
+import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,69 +20,81 @@ import java.util.function.Supplier;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
-public class CommandConfigBuilderImpl<S extends CommandSource> implements CommandConfigBuilder<S> {
-    private final List<CategoryBuilder<S>> categories = new ArrayList<>();
-    private final List<OptionBuilder<?, S>> options = new ArrayList<>();
+public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNodeImpl<S> implements CommandConfigBuilder<S> {
     private final String baseCommand;
-    private Supplier<Text> help;
-    private BiFunction<CommandContext<S>, Text, Integer> printFunc;
-    private Runnable saveFunc;
+    private final List<CategoryBuilderImpl<S>> categories = new ArrayList<>();
+    private final List<OptionBuilderImpl<?, S>> options = new ArrayList<>();
 
     public CommandConfigBuilderImpl(String command) {
         this.baseCommand = command;
     }
 
     @Override
-    public CommandConfigBuilder<S> help(Supplier<Text> content) {
-        this.help = content;
+    public CommandConfigBuilder<S> category(@NotNull Supplier<CategoryBuilder<S>> category) {
+        Validate.notNull(category, Reference.baseError(baseCommand, Reference.NULL_CATEGORY));
+
+        this.categories.add((CategoryBuilderImpl<S>) category.get());
         return this;
     }
 
     @Override
-    public CommandConfigBuilder<S> print(BiFunction<CommandContext<S>, Text, Integer> printFunc) {
+    public CommandConfigBuilder<S> option(@NotNull Supplier<OptionBuilder<?, S>> option) {
+        Validate.notNull(option, Reference.baseError(baseCommand, Reference.NULL_OPTION));
+
+        this.options.add((OptionBuilderImpl<?, S>) option.get());
+        return this;
+    }
+
+    @Override
+    public CommandNode<S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc) {
+        Validate.notNull(printFunc, Reference.baseError(baseCommand, Reference.MISSING_PRINT_FUNC));
+
         this.printFunc = printFunc;
         return this;
     }
 
     @Override
-    public CommandConfigBuilder<S> save(Runnable saveFunc) {
+    public CommandNode<S> saveFunc(@NotNull Runnable saveFunc) {
+        Validate.notNull(printFunc, Reference.baseError(baseCommand, Reference.MISSING_SAVE_FUNC));
+
         this.saveFunc = saveFunc;
         return this;
     }
 
     @Override
-    public CommandConfigBuilder<S> category(CategoryBuilder<S> category) {
-        this.categories.add(category);
+    public CommandNode<S> helpFunc(@NotNull Supplier<Text> helpFunc) {
+        Validate.notNull(printFunc, Reference.baseError(baseCommand, Reference.MISSING_HELP_FUNC));
+
+        this.helpFunc = helpFunc;
         return this;
     }
 
+    @Nullable
     @Override
-    public CommandConfigBuilder<S> option(OptionBuilder<?, S> option) {
-        this.options.add(option);
-        return this;
+    public LiteralArgumentBuilder<S> buildHelpFunc() {
+        Validate.notNull(printFunc, Reference.baseError(baseCommand, Reference.MISSING_HELP_FUNC));
+
+        LiteralArgumentBuilder<S> command = literal("help");
+        if (helpFunc != null)
+            command.executes(context ->
+                    printFunc.apply(context, helpFunc.get()));
+
+        buildHelpers(command, options);
+        buildHelpers(command, categories);
+
+        return command.getArguments().isEmpty() ? null : command;
     }
 
     @Override
     public LiteralArgumentBuilder<S> build() {
         LiteralArgumentBuilder<S> command = literal(baseCommand);
 
-        options.forEach(optionBuilder -> {
-            if (!optionBuilder.hasPrintFunc())
-                optionBuilder.printFunc(printFunc);
-            if (!optionBuilder.hasSaveFunc())
-                optionBuilder.saveFunc(saveFunc);
-            command.then(optionBuilder.build());
-        });
-        categories.forEach(categoryBuilder -> {
-            if (!categoryBuilder.hasPrintFunc())
-                categoryBuilder.printFunc(printFunc);
-            if (!categoryBuilder.hasSaveFunc())
-                categoryBuilder.saveFunc(saveFunc);
-            command.then(categoryBuilder.build());
-        });
+        buildNodes(command, options);
+        buildNodes(command, categories);
 
-        if (help != null)
-            command.executes(context -> printFunc.apply(context, help.get()));
+        LiteralArgumentBuilder<S> helpNode = buildHelpFunc();
+        if (helpNode != null)
+            command.then(helpNode);
 
         return command;
     }
