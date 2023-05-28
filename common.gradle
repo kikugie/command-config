@@ -47,7 +47,7 @@ dependencies {
     // dependencies
 //	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
     // example module import
-//  modImplementation fabricApi.module("fabric-command-api-${mcVersion > 11802 ? "v2" : "v1"}", project.fabric_api_version)
+    modImplementation fabricApi.module("fabric-command-api-${mcVersion > 11802 ? "v2" : "v1"}", project.fabric_api_version)
 
 //	modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
 
@@ -129,7 +129,6 @@ modrinth {
     gameVersions = project.modrinth_versions.split(" ").toList()
     loaders = ["fabric", "quilt"]
     dependencies {
-
     }
     syncBodyFrom = rootProject.file("README.md").text
     changelog = rootProject.file("CHANGELOG.md").text
