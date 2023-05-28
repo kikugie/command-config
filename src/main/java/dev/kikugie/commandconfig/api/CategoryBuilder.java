@@ -2,24 +2,29 @@ package dev.kikugie.commandconfig.api;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import dev.kikugie.commandconfig.impl.config.CategoryBuilderImpl;
+import dev.kikugie.commandconfig.impl.config.CommandConfigBuilderImpl;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public interface CategoryBuilder {
-    CategoryBuilder printFunc(BiFunction<CommandContext<CommandSource>, Text, Integer> printFunc);
+public interface CategoryBuilder<S extends CommandSource> {
+    static <S extends CommandSource> CategoryBuilderImpl<S> create(String name) {
+        return new CategoryBuilderImpl<>(name);
+    }
+    CategoryBuilder<S> printFunc(BiFunction<CommandContext<S>, Text, Integer> printFunc);
 
-    CategoryBuilder saveFunc(Runnable saveFunc);
+    CategoryBuilder<S> saveFunc(Runnable saveFunc);
 
-    CategoryBuilder description(Supplier<Text> text);
+    CategoryBuilder<S> description(Supplier<Text> text);
 
-    CategoryBuilder category(CategoryBuilder category);
+    CategoryBuilder<S> category(CategoryBuilder<S> category);
 
-    CategoryBuilder option(OptionBuilder<?> option);
+    CategoryBuilder<S> option(OptionBuilder<?, S> option);
 
-    LiteralArgumentBuilder<CommandSource> build();
+    LiteralArgumentBuilder<S> build();
 
     boolean hasPrintFunc();
 

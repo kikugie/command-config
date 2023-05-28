@@ -17,14 +17,13 @@ import java.util.function.Supplier;
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 
-public class GenericOptionBuilder<T> implements OptionBuilder<T> {
-
+public class GenericOptionBuilder<T, S extends CommandSource> implements OptionBuilder<T, S> {
     private final String name;
     private final Supplier<ArgumentType<T>> argumentType;
     private final Class<T> type;
     private OptionValue<T> value;
     private Supplier<Text> help;
-    private BiFunction<CommandContext<CommandSource>, Text, Integer> printFunc;
+    private BiFunction<CommandContext<S>, Text, Integer> printFunc;
     private Runnable saveFunc;
 
     public GenericOptionBuilder(String name, Supplier<ArgumentType<T>> argumentType, Class<T> type) {
@@ -34,31 +33,31 @@ public class GenericOptionBuilder<T> implements OptionBuilder<T> {
     }
 
     @Override
-    public OptionBuilder<T> printFunc(BiFunction<CommandContext<CommandSource>, Text, Integer> printFunc) {
+    public OptionBuilder<T, S> printFunc(BiFunction<CommandContext<S>, Text, Integer> printFunc) {
         this.printFunc = printFunc;
         return this;
     }
 
     @Override
-    public OptionBuilder<T> saveFunc(Runnable saveFunc) {
+    public OptionBuilder<T, S> saveFunc(Runnable saveFunc) {
         this.saveFunc = saveFunc;
         return this;
     }
 
     @Override
-    public OptionBuilder<T> value(OptionValue<T> value) {
+    public OptionBuilder<T, S> value(OptionValue<T> value) {
         this.value = value;
         return this;
     }
 
     @Override
-    public OptionBuilder<T> value(Supplier<Text> getter, Function<T, Text> setter) {
+    public OptionBuilder<T, S> value(Supplier<Text> getter, Function<T, Text> setter) {
         this.value = new OptionValueImpl<>(getter, setter);
         return this;
     }
 
     @Override
-    public OptionBuilder<T> help(Supplier<Text> help) {
+    public OptionBuilder<T, S> help(Supplier<Text> help) {
         this.help = help;
         return this;
     }
@@ -74,28 +73,28 @@ public class GenericOptionBuilder<T> implements OptionBuilder<T> {
     }
 
     @Override
-    public LiteralArgumentBuilder<CommandSource> build() {
-        LiteralArgumentBuilder<CommandSource> option = literal(name);
+    public LiteralArgumentBuilder<S> build() {
+        LiteralArgumentBuilder<S> option = literal(name);
 
         // Getter node
         option.executes(context ->
                 printFunc.apply(context, value.get()));
 
         // Setter node
-        RequiredArgumentBuilder<CommandSource, T> argument = argument(name, argumentType.get());
+        RequiredArgumentBuilder<S, T> argument = argument(name, argumentType.get());
         argument.executes(context -> {
             int result = printFunc.apply(context, value.set(context.getArgument(name, type)));
             saveFunc.run();
             return result;
         });
 
-        // Helper node
-        if (help != null) {
-            LiteralArgumentBuilder<CommandSource> helpArg = literal("help");
-            helpArg.executes(context ->
-                    printFunc.apply(context, help.get()));
-            argument.then(helpArg);
-        }
+//        // Helper node
+//        if (help != null) {
+//            LiteralArgumentBuilder<S> helpArg = literal("help");
+//            helpArg.executes(context ->
+//                    printFunc.apply(context, help.get()));
+//            argument.then(helpArg);
+//        }
 
         return option.then(argument);
     }

@@ -9,8 +9,8 @@ public class Reference {
     public static String MOD_NAME = "unknown";
 
     public static void init() {
-        ModMetadata metadata = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow(RuntimeException::new).getMetadata();
-        MOD_NAME = metadata.getName();
-        MOD_VERSION = metadata.getVersion().getFriendlyString();
+//        ModMetadata metadata = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow(RuntimeException::new).getMetadata();
+//        MOD_NAME = metadata.getName();
+//        MOD_VERSION = metadata.getVersion().getFriendlyString();
     }
 }

@@ -14,7 +14,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "dev.kikugie.commandconfig.impl.CommandConfig"
+      "dev.kikugie.commandconfig.impl.CommandConfigMod"
     ]
   },
   "mixins": [
