@@ -10,7 +10,6 @@ public class CommandConfigMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        Reference.init();
         TestConfig.create();
     }
 }

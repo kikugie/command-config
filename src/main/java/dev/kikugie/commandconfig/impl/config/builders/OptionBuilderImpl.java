@@ -1,19 +1,19 @@
-package dev.kikugie.commandconfig.impl.config;
+package dev.kikugie.commandconfig.impl.config.builders;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.Reference;
-import dev.kikugie.commandconfig.api.OptionBuilder;
+import dev.kikugie.commandconfig.api.builders.OptionBuilder;
+import dev.kikugie.commandconfig.impl.config.CommandNodeImpl;
+import dev.kikugie.commandconfig.impl.config.OptionValueImpl;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -21,10 +21,12 @@ import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
 public abstract class OptionBuilderImpl<T, S extends CommandSource> extends CommandNodeImpl<S> implements OptionBuilder<T, S> {
     protected final String name;
-    protected final List<BiConsumer<String, T>> listeners = new ArrayList<>();
     protected OptionValueImpl<T> value;
 
-    public OptionBuilderImpl(String name) {
+    public OptionBuilderImpl(String name, Class<S> type) {
+        super(type);
+        Validate.matchesPattern(name, Reference.ALLOWED_NAMES, Reference.optionError(name, Reference.INVALID_NAME));
+
         this.name = name;
     }
 
@@ -57,10 +59,10 @@ public abstract class OptionBuilderImpl<T, S extends CommandSource> extends Comm
     }
 
     @Override
-    public OptionBuilderImpl<T, S> listener(@NotNull BiConsumer<String, T> listener) {
+    public OptionBuilderImpl<T, S> listener(@NotNull Consumer<T> listener) {
         Validate.notNull(printFunc, Reference.optionError(name, Reference.NULL_LISTENER));
 
-        this.listeners.add(listener);
+        this.value.addListener(listener);
         return this;
     }
 
@@ -72,5 +74,10 @@ public abstract class OptionBuilderImpl<T, S extends CommandSource> extends Comm
         LiteralArgumentBuilder<S> option = literal(name);
         return option.executes(context ->
                 printFunc.apply(context, helpFunc.get()));
+    }
+
+    public void save() {
+        if (saveFunc != null)
+            saveFunc.run();
     }
 }

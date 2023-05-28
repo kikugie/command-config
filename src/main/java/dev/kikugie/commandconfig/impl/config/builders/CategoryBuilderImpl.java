@@ -1,10 +1,11 @@
-package dev.kikugie.commandconfig.impl.config;
+package dev.kikugie.commandconfig.impl.config.builders;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.Reference;
-import dev.kikugie.commandconfig.api.CategoryBuilder;
-import dev.kikugie.commandconfig.api.OptionBuilder;
+import dev.kikugie.commandconfig.api.builders.CategoryBuilder;
+import dev.kikugie.commandconfig.api.builders.OptionBuilder;
+import dev.kikugie.commandconfig.impl.config.CommandNodeImpl;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.Validate;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
@@ -23,23 +25,26 @@ public class CategoryBuilderImpl<S extends CommandSource> extends CommandNodeImp
     private final List<CategoryBuilderImpl<S>> categories = new ArrayList<>();
     private final List<OptionBuilderImpl<?, S>> options = new ArrayList<>();
 
-    public CategoryBuilderImpl(String name) {
+    public CategoryBuilderImpl(String name, Class<S> type) {
+        super(type);
+        Validate.matchesPattern(name, Reference.ALLOWED_NAMES, Reference.categoryError(name, Reference.INVALID_NAME));
+
         this.name = name;
     }
 
     @Override
-    public CategoryBuilder<S> category(@NotNull Supplier<CategoryBuilder<S>> category) {
+    public CategoryBuilder<S> category(@NotNull Function<Class<S>, CategoryBuilder<S>> category) {
         Validate.notNull(category, Reference.categoryError(name, Reference.NULL_CATEGORY));
 
-        this.categories.add((CategoryBuilderImpl<S>) category.get());
+        this.categories.add((CategoryBuilderImpl<S>) category.apply(type));
         return this;
     }
 
     @Override
-    public CategoryBuilder<S> option(@NotNull Supplier<OptionBuilder<?, S>> option) {
+    public CategoryBuilder<S> option(@NotNull Function<Class<S>, OptionBuilder<?, S>> option) {
         Validate.notNull(option, Reference.categoryError(name, Reference.NULL_OPTION));
 
-        this.options.add((OptionBuilderImpl<?, S>) option.get());
+        this.options.add((OptionBuilderImpl<?, S>) option.apply(type));
         return this;
     }
 

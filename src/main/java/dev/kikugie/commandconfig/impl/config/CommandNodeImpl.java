@@ -12,9 +12,14 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public abstract class CommandNodeImpl<S extends CommandSource> implements CommandNode<S> {
+    protected final Class<S> type;
     protected BiFunction<CommandContext<S>, Text, Integer> printFunc;
     protected Runnable saveFunc;
     protected Supplier<Text> helpFunc;
+
+    protected CommandNodeImpl(Class<S> type) {
+        this.type = type;
+    }
 
     @Nullable
     public BiFunction<CommandContext<S>, Text, Integer> getPrintFunc() {
