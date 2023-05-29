@@ -4,7 +4,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.Reference;
 import dev.kikugie.commandconfig.api.builders.OptionBuilder;
-import dev.kikugie.commandconfig.impl.option.OptionValueAccess;
+import dev.kikugie.commandconfig.api.option.OptionValueAccess;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.Validate;
@@ -50,8 +50,14 @@ public abstract class OptionBuilderImpl<T, S extends CommandSource> extends Comm
     }
 
     @Override
+    public OptionBuilderImpl<T, S> valueAccess(@NotNull OptionValueAccess<T> access) {
+        this.valueAccess = access;
+        return this;
+    }
+
+    @Override
     public OptionBuilderImpl<T, S> valueAccess(@NotNull Supplier<Text> getter, @NotNull Function<T, Text> setter) {
-        this.valueAccess = new OptionValueAccess<>(getter, setter, name);
+        this.valueAccess = new OptionValueAccess<>(name, getter, setter);
         return this;
     }
 

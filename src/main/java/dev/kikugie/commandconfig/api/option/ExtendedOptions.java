@@ -1,36 +1,31 @@
 package dev.kikugie.commandconfig.api.option;
 
 import com.mojang.brigadier.arguments.*;
-import com.mojang.serialization.Codec;
 import dev.kikugie.commandconfig.api.builders.ListOptionBuilder;
 import dev.kikugie.commandconfig.api.builders.OptionBuilder;
+import dev.kikugie.commandconfig.impl.command.CustomEnumArgumentType;
 import dev.kikugie.commandconfig.impl.command.ListArgumentType;
 import dev.kikugie.commandconfig.impl.option.GenericOptionBuilderImpl;
 import dev.kikugie.commandconfig.impl.option.ListOptionBuilderImpl;
 import net.minecraft.command.CommandSource;
-import net.minecraft.command.argument.EnumArgumentType;
 import net.minecraft.util.StringIdentifiable;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * Wrappers for complex options.
  */
-public class ExtendedOptions<T, S extends CommandSource> {
+@SuppressWarnings("unused")
+public class ExtendedOptions {
     /**
      * Creates an enum option builder. Passed enum must implement {@link StringIdentifiable}.
      *
      * @param name    option name. Cannot contain spaces
      * @param enumArg Target enum class
      * @param type    CommandSource class reference, passed from top level node
-     * @return
      */
     public static <T extends Enum<T> & StringIdentifiable, S extends CommandSource> OptionBuilder<T, S> enumArg(String name, Class<T> enumArg, Class<S> type) {
-        Supplier<T[]> values = enumArg::getEnumConstants;
-        Codec<T> codec = StringIdentifiable.createCodec(values);
-        return new GenericOptionBuilderImpl<>(name, new EnumArgumentType<>(codec, values) {
-        }, enumArg, type);
+        return new GenericOptionBuilderImpl<>(name, CustomEnumArgumentType.enumArg(enumArg), enumArg, type);
     }
 
     /**

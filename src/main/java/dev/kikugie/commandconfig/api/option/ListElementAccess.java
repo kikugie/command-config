@@ -1,8 +1,9 @@
-package dev.kikugie.commandconfig.impl.option;
+package dev.kikugie.commandconfig.api.option;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+@SuppressWarnings("unused")
 public class ListElementAccess<T> {
     private final List<BiConsumer<T, String>> listeners = new ArrayList<>();
     private final BiFunction<Integer, T, Text> elementSetter;
@@ -18,11 +20,11 @@ public class ListElementAccess<T> {
     private final Function<Integer, Pair<T, Text>> elementRemover;
     private final String name;
 
-    public ListElementAccess(@NotNull Function<Integer, Text> getter,
+    public ListElementAccess(@NotNull String name,
+                             @NotNull Function<Integer, Text> getter,
                              @NotNull BiFunction<Integer, T, Text> setter,
                              @NotNull Function<T, Text> appender,
-                             @NotNull Function<Integer, Pair<T, Text>> remover,
-                             @NotNull String name
+                             @NotNull Function<Integer, Pair<@Nullable T, Text>> remover
     ) {
         this.elementGetter = getter;
         this.elementSetter = setter;

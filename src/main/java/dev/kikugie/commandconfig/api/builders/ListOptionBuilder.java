@@ -2,6 +2,7 @@ package dev.kikugie.commandconfig.api.builders;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.datafixers.util.Pair;
+import dev.kikugie.commandconfig.api.option.ListElementAccess;
 import dev.kikugie.commandconfig.impl.command.ListArgumentType;
 import dev.kikugie.commandconfig.impl.option.ListOptionBuilderImpl;
 import net.minecraft.command.CommandSource;
@@ -20,6 +21,7 @@ import java.util.function.Function;
  * @param <T> List value type
  * @param <S> CommandSource type
  */
+@SuppressWarnings("unused")
 public interface ListOptionBuilder<L extends List<T>, T, S extends CommandSource> extends OptionBuilder<L, S> {
     /**
      * Creates a builder for a list option type.
@@ -77,6 +79,16 @@ public interface ListOptionBuilder<L extends List<T>, T, S extends CommandSource
     static <L extends List<T>, S extends CommandSource, T> ListOptionBuilder<L, T, S> genericList(String name, ArgumentType<T> argumentType, Class<T> valueType, Class<S> type) {
         return new ListOptionBuilderImpl<>(name, ListArgumentType.list(argumentType), argumentType, valueType, type);
     }
+
+    /**
+     * Interface for modifying list elements.
+     * <br>
+     * <h2>Index bounds must be checked by the config state or provided functions</h2>
+     *
+     * @param access {@link ListElementAccess} instance
+     * @return this
+     */
+    ListOptionBuilder<L, T, S> elementAccess(@NotNull ListElementAccess<T> access);
 
     /**
      * Interface for modifying list elements.

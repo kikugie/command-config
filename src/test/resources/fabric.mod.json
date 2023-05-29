@@ -16,8 +16,8 @@
   ],
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "dev.kikugie.commandconfig.testmod.TestMod"
+    "client": [
+      "dev.kikugie.commandconfig.testmod.TestModClient"
     ]
   },
   "depends": {

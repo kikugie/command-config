@@ -17,6 +17,7 @@ import java.util.function.Supplier;
  *
  * @param <S> Command source used in command responses. Use FabricClientCommandSource or ServerCommandSource
  */
+@SuppressWarnings("unused")
 public interface CommandConfigBuilder<S extends CommandSource> extends CommandNode<S> {
     /**
      * Creates a command builder. After adding all features should be finalised with {@link #build()} to produce a command node.
@@ -98,25 +99,22 @@ public interface CommandConfigBuilder<S extends CommandSource> extends CommandNo
      * @param printFunc Accepts {@link CommandContext} and {@link Text}, produces integer result
      * @return this
      */
-    @Override
     CommandConfigBuilder<S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc);
 
     /**
      * Runs every time value is set. Basically, a global listener.
      *
      * @param saveFunc Saving runnable
-     * @return
+     * @return this
      */
-    @Override
     CommandConfigBuilder<S> saveFunc(@NotNull Runnable saveFunc);
 
     /**
      * Specifies value used for `help` subcommand.
      *
      * @param helpFunc Produces helper text
-     * @return
+     * @return this
      */
-    @Override
     CommandConfigBuilder<S> helpFunc(@NotNull Supplier<Text> helpFunc);
 
     /**

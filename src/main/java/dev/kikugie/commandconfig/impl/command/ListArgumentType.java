@@ -8,7 +8,6 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.kikugie.commandconfig.Reference;
-import net.minecraft.text.Text;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -24,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ListArgumentType<T, U extends ArgumentType<T>> implements ArgumentType<List<T>> {
     private static final SimpleCommandExceptionType TOO_FEW_ARGUMENTS_EXCEPTION = new SimpleCommandExceptionType(
-            Reference.translated("testmod.response.too_few_args"));
+            Reference.translated("commandconfig.response.error.too_few_args"));
 
     private final U argumentType;
     private final int min;

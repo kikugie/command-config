@@ -1,4 +1,15 @@
 commandconfig:
   response:
-    no_help_func: §4This category doesn't have a description :(
-    too_few_args: Too few arguments
+    error:
+      no_help_func: §4This category doesn't have a description :(
+      too_few_args: Too few arguments
+      invalid_enum: "Invalid enum value: %s"
+      invalid_index: "§4Index %s is out of bounds"
+    option:
+      get: "Option value: %s"
+      set: "Option value set to: %s"
+      element:
+        get: "Element value: %s"
+        set: "Set element value at %s index %s"
+        add: "Added element value %s at index %s"
+        remove: "Removed element value %s at index %s"

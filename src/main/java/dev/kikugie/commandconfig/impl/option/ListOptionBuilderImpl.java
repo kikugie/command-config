@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.datafixers.util.Pair;
 import dev.kikugie.commandconfig.Reference;
 import dev.kikugie.commandconfig.api.builders.ListOptionBuilder;
+import dev.kikugie.commandconfig.api.option.ListElementAccess;
 import dev.kikugie.commandconfig.impl.builders.OptionBuilderImpl;
 import dev.kikugie.commandconfig.impl.command.ListArgumentType;
 import net.minecraft.command.CommandSource;
@@ -14,6 +15,7 @@ import net.minecraft.text.Text;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -45,11 +47,17 @@ public class ListOptionBuilderImpl<L extends List<T>, T, S extends CommandSource
     }
 
     @Override
+    public ListOptionBuilder<L, T, S> elementAccess(@NotNull ListElementAccess<T> access) {
+        this.elementAccess = access;
+        return this;
+    }
+
+    @Override
     public ListOptionBuilder<L, T, S> elementAccess(@NotNull Function<Integer, Text> getter,
                                                     @NotNull BiFunction<Integer, T, Text> setter,
                                                     @NotNull Function<T, Text> appender,
-                                                    @NotNull Function<Integer, Pair<T, Text>> remover) {
-        this.elementAccess = new ListElementAccess<>(getter, setter, appender, remover, name);
+                                                    @NotNull Function<Integer, Pair<@Nullable T, Text>> remover) {
+        this.elementAccess = new ListElementAccess<>(name, getter, setter, appender, remover);
         return this;
     }
 

@@ -6,6 +6,7 @@ import dev.kikugie.commandconfig.api.CommandNode;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -25,6 +26,30 @@ public abstract class CommandNodeImpl<S extends CommandSource> implements Comman
     protected CommandNodeImpl(Class<S> type) {
         this.type = type;
     }
+
+    /**
+     * Specifies result output function.
+     *
+     * @param printFunc Accepts {@link CommandContext} and {@link Text}, produces integer result
+     * @return this
+     */
+    abstract CommandNode<S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc);
+
+    /**
+     * Runs every time value is set. Basically, a global listener.
+     *
+     * @param saveFunc Saving runnable
+     * @return this
+     */
+    abstract CommandNode<S> saveFunc(@NotNull Runnable saveFunc);
+
+    /**
+     * Specifies value used for `help` subcommand.
+     *
+     * @param helpFunc Produces helper text
+     * @return this
+     */
+    abstract CommandNode<S> helpFunc(@NotNull Supplier<Text> helpFunc);
 
     @Nullable
     public BiFunction<CommandContext<S>, Text, Integer> getPrintFunc() {

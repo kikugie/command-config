@@ -16,7 +16,7 @@ public class Reference {
     public static final String NULL_ELEMENT_LISTENER = "No element access for list %s \"%s\".\nAdd it using `.elementAccess()` before adding listeners.";
     public static final String NULL_VALUE_LISTENER = "No value access for %s \"%s\".\nAdd it using `.valueAccess()` before adding listeners.";
     public static final String NO_VALUE_ACCESS = "No value access for %s \"%s\".\nAdd it using `.valueAccess()`.";
-    public static final Supplier<Text> NO_HELP_SAD = () -> translated("testmod.response.no_help_func");
+    public static final Supplier<Text> NO_HELP_SAD = () -> translated("commandconfig.response.error.no_help_func");
 
     public static String optionError(String name, String error) {
         return String.format(error, "option", name);

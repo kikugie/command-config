@@ -1,17 +1,20 @@
 package dev.kikugie.commandconfig.api.builders;
 
+import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.api.CommandNode;
 import dev.kikugie.commandconfig.impl.builders.CategoryBuilderImpl;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
  * @param <S> CommandSource type
  */
+@SuppressWarnings("unused")
 public interface CategoryBuilder<S extends CommandSource> extends CommandNode<S> {
     /**
      * Creates a category builder, which can contain options and other categories.
@@ -52,11 +55,26 @@ public interface CategoryBuilder<S extends CommandSource> extends CommandNode<S>
     CategoryBuilder<S> option(@NotNull Function<Class<S>, OptionBuilder<?, S>> option);
 
     /**
+     * Specifies result output function.
+     *
+     * @param printFunc Accepts {@link CommandContext} and {@link Text}, produces integer result
+     * @return this
+     */
+    CategoryBuilder<S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc);
+
+    /**
+     * Runs every time value is set. Basically, a global listener.
+     *
+     * @param saveFunc Saving runnable
+     * @return this
+     */
+    CategoryBuilder<S> saveFunc(@NotNull Runnable saveFunc);
+
+    /**
      * Specifies value used for `help` subcommand.
      *
      * @param helpFunc Produces helper text
-     * @return
+     * @return this
      */
-    @Override
     CategoryBuilder<S> helpFunc(@NotNull Supplier<Text> helpFunc);
 }
