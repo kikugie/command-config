@@ -1,14 +1,14 @@
-package dev.kikugie.commandconfig.impl.config.builders;
+package dev.kikugie.commandconfig.impl.builders;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.Reference;
 import dev.kikugie.commandconfig.api.builders.CategoryBuilder;
 import dev.kikugie.commandconfig.api.builders.OptionBuilder;
-import dev.kikugie.commandconfig.impl.config.CommandNodeImpl;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
+@ApiStatus.Internal
 public class CategoryBuilderImpl<S extends CommandSource> extends CommandNodeImpl<S> implements CategoryBuilder<S> {
     private final String name;
     private final List<CategoryBuilderImpl<S>> categories = new ArrayList<>();
@@ -27,9 +28,9 @@ public class CategoryBuilderImpl<S extends CommandSource> extends CommandNodeImp
 
     public CategoryBuilderImpl(String name, Class<S> type) {
         super(type);
-        Validate.matchesPattern(name, Reference.ALLOWED_NAMES, Reference.categoryError(name, Reference.INVALID_NAME));
-
         this.name = name;
+
+        Validate.matchesPattern(name, Reference.ALLOWED_NAMES, Reference.categoryError(name, Reference.INVALID_NAME));
     }
 
     @Override
@@ -50,16 +51,12 @@ public class CategoryBuilderImpl<S extends CommandSource> extends CommandNodeImp
 
     @Override
     public CategoryBuilder<S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc) {
-        Validate.notNull(printFunc, Reference.categoryError(name, Reference.MISSING_PRINT_FUNC));
-
         this.printFunc = printFunc;
         return this;
     }
 
     @Override
     public CategoryBuilder<S> saveFunc(@NotNull Runnable saveFunc) {
-        Validate.notNull(printFunc, Reference.categoryError(name, Reference.MISSING_SAVE_FUNC));
-
         this.saveFunc = saveFunc;
         return this;
     }
@@ -73,17 +70,17 @@ public class CategoryBuilderImpl<S extends CommandSource> extends CommandNodeImp
     @Nullable
     @Override
     public LiteralArgumentBuilder<S> buildHelpFunc() {
-        Validate.notNull(printFunc, Reference.categoryError(name, Reference.MISSING_HELP_FUNC));
+        Validate.notNull(printFunc, Reference.categoryError(name, Reference.NO_PRINT_FUNC));
 
         LiteralArgumentBuilder<S> category = literal(name);
-        if (helpFunc != null)
-            category.executes(context ->
-                    printFunc.apply(context, helpFunc.get()));
-
         buildHelpers(category, options);
         buildHelpers(category, categories);
 
-        return category.getArguments().isEmpty() ? null : category;
+        category.executes(context ->
+                printFunc.apply(context, helpFunc != null ? helpFunc.get() : Reference.NO_HELP_SAD.get()));
+
+
+        return category.getArguments().isEmpty() && helpFunc == null ? null : category;
     }
 
     @NotNull

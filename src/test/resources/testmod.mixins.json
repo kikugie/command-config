@@ -1,11 +1,14 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "dev.kikugie.commandconfig.mixin",
+  "package": "dev.kikugie.commandconfig.testmod.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "SplashMixin"
+  ]
 }

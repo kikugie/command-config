@@ -2,9 +2,12 @@ package dev.kikugie.commandconfig.api.option;
 
 import com.mojang.brigadier.arguments.*;
 import dev.kikugie.commandconfig.api.builders.OptionBuilder;
-import dev.kikugie.commandconfig.impl.config.option.GenericOptionBuilderImpl;
+import dev.kikugie.commandconfig.impl.option.GenericOptionBuilderImpl;
 import net.minecraft.command.CommandSource;
 
+/**
+ * Wrappers for basic data types.
+ */
 public class SimpleOptions<T, S extends CommandSource> {
     public static <S extends CommandSource> OptionBuilder<Boolean, S> bool(String name, Class<S> type) {
         return new GenericOptionBuilderImpl<>(name, BoolArgumentType.bool(), Boolean.class, type);

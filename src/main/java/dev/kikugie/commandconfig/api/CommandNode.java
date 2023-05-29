@@ -9,7 +9,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+/**
+ * Basic functionality for command nodes.
+ *
+ * @param <S> CommandSource type
+ */
 public interface CommandNode<S extends CommandSource> {
+
     CommandNode<S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc);
 
     CommandNode<S> saveFunc(@NotNull Runnable saveFunc);

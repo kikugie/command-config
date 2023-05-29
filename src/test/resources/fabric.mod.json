@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "${id}",
+  "id": "testmod",
   "version": "${version}",
-  "name": "${name}",
+  "name": "Test Mod",
   "description": "",
   "authors": [
     "KikuGie"
@@ -10,8 +10,16 @@
   "contact": {
   },
   "license": "LGPL-3.0",
-  "icon": "assets/commandconfig/icon.png",
+  "icon": "assets/testmod/icon.png",
+  "mixins": [
+    "testmod.mixins.json"
+  ],
   "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.kikugie.commandconfig.testmod.TestMod"
+    ]
+  },
   "depends": {
     "fabricloader": ">=0.11.4",
     "minecraft": "${minecraft_dependency}"

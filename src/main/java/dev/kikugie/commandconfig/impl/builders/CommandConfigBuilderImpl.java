@@ -1,16 +1,15 @@
-package dev.kikugie.commandconfig.impl.config.builders;
+package dev.kikugie.commandconfig.impl.builders;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.Reference;
-import dev.kikugie.commandconfig.api.CommandNode;
 import dev.kikugie.commandconfig.api.builders.CategoryBuilder;
 import dev.kikugie.commandconfig.api.builders.CommandConfigBuilder;
 import dev.kikugie.commandconfig.api.builders.OptionBuilder;
-import dev.kikugie.commandconfig.impl.config.CommandNodeImpl;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,6 +21,7 @@ import java.util.function.Supplier;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
+@ApiStatus.Internal
 public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNodeImpl<S> implements CommandConfigBuilder<S> {
     private final String baseCommand;
     private final List<CategoryBuilderImpl<S>> categories = new ArrayList<>();
@@ -29,9 +29,8 @@ public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNo
 
     public CommandConfigBuilderImpl(String command, Class<S> type) {
         super(type);
-        Validate.matchesPattern(command, Reference.ALLOWED_NAMES, Reference.baseError(command, Reference.INVALID_NAME));
-
         this.baseCommand = command;
+        Validate.matchesPattern(command, Reference.ALLOWED_NAMES, Reference.baseError(baseCommand, Reference.INVALID_NAME));
     }
 
     @Override
@@ -51,25 +50,19 @@ public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNo
     }
 
     @Override
-    public CommandNode<S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc) {
-        Validate.notNull(printFunc, Reference.baseError(baseCommand, Reference.MISSING_PRINT_FUNC));
-
+    public CommandConfigBuilder<S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc) {
         this.printFunc = printFunc;
         return this;
     }
 
     @Override
-    public CommandNode<S> saveFunc(@NotNull Runnable saveFunc) {
-        Validate.notNull(printFunc, Reference.baseError(baseCommand, Reference.MISSING_SAVE_FUNC));
-
+    public CommandConfigBuilder<S> saveFunc(@NotNull Runnable saveFunc) {
         this.saveFunc = saveFunc;
         return this;
     }
 
     @Override
-    public CommandNode<S> helpFunc(@NotNull Supplier<Text> helpFunc) {
-        Validate.notNull(printFunc, Reference.baseError(baseCommand, Reference.MISSING_HELP_FUNC));
-
+    public CommandConfigBuilder<S> helpFunc(@NotNull Supplier<Text> helpFunc) {
         this.helpFunc = helpFunc;
         return this;
     }
@@ -77,21 +70,24 @@ public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNo
     @Nullable
     @Override
     public LiteralArgumentBuilder<S> buildHelpFunc() {
-        Validate.notNull(printFunc, Reference.baseError(baseCommand, Reference.MISSING_HELP_FUNC));
+        Validate.notNull(printFunc, Reference.baseError(baseCommand, Reference.NO_PRINT_FUNC));
 
         LiteralArgumentBuilder<S> command = literal("help");
-        if (helpFunc != null)
-            command.executes(context ->
-                    printFunc.apply(context, helpFunc.get()));
 
         buildHelpers(command, options);
         buildHelpers(command, categories);
 
-        return command.getArguments().isEmpty() ? null : command;
+        command.executes(context ->
+                printFunc.apply(context, helpFunc != null ? helpFunc.get() : Reference.NO_HELP_SAD.get()));
+
+        return command.getArguments().isEmpty() && helpFunc == null ? null : command;
     }
 
+    @NotNull
     @Override
     public LiteralArgumentBuilder<S> build() {
+        Validate.notNull(printFunc, Reference.baseError(baseCommand, Reference.NO_PRINT_FUNC));
+
         LiteralArgumentBuilder<S> command = literal(baseCommand);
 
         buildNodes(command, options);

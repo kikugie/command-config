@@ -7,19 +7,24 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import dev.kikugie.commandconfig.Reference;
 import net.minecraft.text.Text;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * List argument type taken from Client Commands by EarthComputer
+ * Given a source argument type returns list type of it.
+ * Entries must be separated with a spaces.
+ * <br>
+ * Taken from Client Commands by EarthComputer.
  *
  * @see <a href="https://github.com/Earthcomputer/clientcommands/blob/fabric/src/main/java/net/earthcomputer/clientcommands/command/arguments/ListArgumentType.java">Source code</a>
  * @see <a href="https://modrinth.com/mod/client-commands">Mod page</a>
  */
 public class ListArgumentType<T, U extends ArgumentType<T>> implements ArgumentType<List<T>> {
-    private static final SimpleCommandExceptionType TOO_FEW_ARGUMENTS_EXCEPTION = new SimpleCommandExceptionType(Text.translatable("commands.client.tooFewArguments"));
+    private static final SimpleCommandExceptionType TOO_FEW_ARGUMENTS_EXCEPTION = new SimpleCommandExceptionType(
+            Reference.translated("testmod.response.too_few_args"));
 
     private final U argumentType;
     private final int min;

@@ -1,20 +1,25 @@
-package dev.kikugie.commandconfig.impl.config;
+package dev.kikugie.commandconfig.impl.builders;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.api.CommandNode;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+@ApiStatus.Internal
 public abstract class CommandNodeImpl<S extends CommandSource> implements CommandNode<S> {
     protected final Class<S> type;
     protected BiFunction<CommandContext<S>, Text, Integer> printFunc;
+    @Nullable
     protected Runnable saveFunc;
+
+    @Nullable
     protected Supplier<Text> helpFunc;
 
     protected CommandNodeImpl(Class<S> type) {

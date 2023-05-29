@@ -1,1 +1,4 @@
-template: "Hello Mod!"
+commandconfig:
+  response:
+    no_help_func: §4This category doesn't have a description :(
+    too_few_args: Too few arguments
