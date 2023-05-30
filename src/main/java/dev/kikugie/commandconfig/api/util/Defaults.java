@@ -46,11 +46,11 @@ public class Defaults {
      * @param <T> Value type
      * @return {@link OptionValueAccess} to be passed to an option
      */
-    public static <T, S extends CommandSource> OptionValueAccess<T, S> defaultValueAccess(Function<CommandContext<S>, T> getter, BiConsumer<CommandContext<S>, T> setter) {
+    public static <T, S extends CommandSource> OptionValueAccess<T, S> defaultValueAccess(Supplier<T> getter, Consumer<T> setter) {
         return new OptionValueAccess<>(
-                (context) -> Reference.translated("commandconfig.response.option.get", getter.apply(context)),
+                (context) -> Reference.translated("commandconfig.response.option.get", getter.get()),
                 (context, val) -> {
-                    setter.accept(context, val);
+                    setter.accept(val);
                     return Reference.translated("commandconfig.response.option.set", val);
                 });
     }
@@ -70,14 +70,14 @@ public class Defaults {
      * @param <T> Value type
      * @return {@link ListElementAccess} to be passed to a list option
      */
-    public static <L extends List<T>, T, S extends CommandSource> ListElementAccess<T, S> defaultElementAccess(Function<CommandContext<S>, L> listSupplier) {
+    public static <L extends List<T>, T, S extends CommandSource> ListElementAccess<T, S> defaultElementAccess(Supplier<L> listSupplier) {
         return new ListElementAccess<>(
                 (context,index) -> {
-                    L list = listSupplier.apply(context);
+                    L list = listSupplier.get();
                     return index >= 0 && index < list.size() ? Reference.translated("commandconfig.response.option.element.get", list.get(index)) : Reference.translated("commandconfig.response.error.invalid_index", index);
                 },
                 (context,index, value) -> {
-                    L list = listSupplier.apply(context);
+                    L list = listSupplier.get();
                     if (index >= 0 && index < list.size()) {
                         list.set(index, value);
                         return Reference.translated("commandconfig.response.option.element.set", value, index);
@@ -85,12 +85,12 @@ public class Defaults {
                     return Reference.translated("commandconfig.response.error.invalid_index", index);
                 },
                 (context,value) -> {
-                    L list = listSupplier.apply(context);
+                    L list = listSupplier.get();
                     list.add(value);
                     return Reference.translated("commandconfig.response.option.element.add", value, list.size());
                 },
                 (context,index) -> {
-                    L list = listSupplier.apply(context);
+                    L list = listSupplier.get();
                     if (index >= 0 && index < list.size()) {
                         T value = list.get(index);
                         // Uses removeAll to avoid remove method ambiguity
