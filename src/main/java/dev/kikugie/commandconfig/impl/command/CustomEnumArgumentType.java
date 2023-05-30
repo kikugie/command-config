@@ -17,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Custom implementation of `EnumArgumentType`. Created mainly for <1.19 compatibility.
+ *
  * @param <T> Enum type
  */
 public class CustomEnumArgumentType<T extends Enum<T> & StringIdentifiable> implements ArgumentType<T> {
@@ -24,16 +25,16 @@ public class CustomEnumArgumentType<T extends Enum<T> & StringIdentifiable> impl
             value -> Reference.translated("commandconfig.response.error.invalid_enum", value));
     private final Object2ObjectArrayMap<String, T> values;
 
-    public static <T extends Enum<T> & StringIdentifiable> CustomEnumArgumentType<T> enumArg(Class<T> enumClass) {
-        return new CustomEnumArgumentType<>(enumClass.getEnumConstants());
-    }
-
     public CustomEnumArgumentType(T[] values) {
         String[] keys = new String[values.length];
         for (int i = 0; i < values.length; i++) {
             keys[i] = values[i].asString();
         }
         this.values = new Object2ObjectArrayMap<>(keys, values);
+    }
+
+    public static <T extends Enum<T> & StringIdentifiable> CustomEnumArgumentType<T> enumArg(Class<T> enumClass) {
+        return new CustomEnumArgumentType<>(enumClass.getEnumConstants());
     }
 
     @Override

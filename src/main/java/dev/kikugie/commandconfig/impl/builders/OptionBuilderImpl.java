@@ -1,10 +1,11 @@
 package dev.kikugie.commandconfig.impl.builders;
 
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.Reference;
 import dev.kikugie.commandconfig.api.builders.OptionBuilder;
-import dev.kikugie.commandconfig.api.option.OptionValueAccess;
+import dev.kikugie.commandconfig.api.option.access.OptionValueAccess;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.Validate;
@@ -12,6 +13,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -22,6 +25,7 @@ import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 @ApiStatus.Internal
 public abstract class OptionBuilderImpl<T, S extends CommandSource> extends CommandNodeImpl<S> implements OptionBuilder<T, S> {
     protected final String name;
+    protected final List<ArgumentBuilder<S, ?>> extraNodes = new ArrayList<>();
     protected OptionValueAccess<T> valueAccess;
 
     public OptionBuilderImpl(String name, Class<S> type) {
@@ -32,40 +36,51 @@ public abstract class OptionBuilderImpl<T, S extends CommandSource> extends Comm
     }
 
     @Override
-    public OptionBuilderImpl<T, S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc) {
-        this.printFunc = printFunc;
+    public OptionBuilder<T, S> then(@NotNull ArgumentBuilder<S, ?> node) {
+        Validate.notNull(node, Reference.baseError(name, Reference.NULL_NODE));
+
+        this.extraNodes.add(node);
         return this;
     }
 
     @Override
-    public OptionBuilderImpl<T, S> saveFunc(@NotNull Runnable saveFunc) {
-        this.saveFunc = saveFunc;
+    public OptionBuilder<T, S> valueAccess(@NotNull OptionValueAccess<T> access) {
+        Validate.notNull(access, Reference.optionError(name, Reference.NULL_VALUE_ACCESS));
+
+        this.valueAccess = access.name(name);
         return this;
     }
 
     @Override
-    public OptionBuilderImpl<T, S> helpFunc(@NotNull Supplier<Text> helpFunc) {
-        this.helpFunc = helpFunc;
-        return this;
-    }
-
-    @Override
-    public OptionBuilderImpl<T, S> valueAccess(@NotNull OptionValueAccess<T> access) {
-        this.valueAccess = access;
-        return this;
-    }
-
-    @Override
-    public OptionBuilderImpl<T, S> valueAccess(@NotNull Supplier<Text> getter, @NotNull Function<T, Text> setter) {
+    public OptionBuilder<T, S> valueAccess(@NotNull Supplier<Text> getter, @NotNull Function<T, Text> setter) {
         this.valueAccess = new OptionValueAccess<>(name, getter, setter);
         return this;
     }
 
     @Override
-    public OptionBuilderImpl<T, S> listener(@NotNull BiConsumer<T, String> listener) {
-        Validate.notNull(printFunc, Reference.optionError(name, Reference.NULL_VALUE_LISTENER));
+    public OptionBuilder<T, S> listener(@NotNull BiConsumer<T, String> listener) {
+        Validate.notNull(listener, Reference.optionError(name, Reference.NULL_LISTENER));
+        Validate.notNull(printFunc, Reference.optionError(name, Reference.NO_VALUE_LISTENER));
 
         this.valueAccess.addListener(listener);
+        return this;
+    }
+
+    @Override
+    public OptionBuilder<T, S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc) {
+        super.printFunc(printFunc);
+        return this;
+    }
+
+    @Override
+    public OptionBuilder<T, S> saveFunc(@NotNull Runnable saveFunc) {
+        super.saveFunc(saveFunc);
+        return this;
+    }
+
+    @Override
+    public OptionBuilder<T, S> helpFunc(@NotNull Supplier<Text> helpFunc) {
+        super.helpFunc(helpFunc);
         return this;
     }
 
@@ -77,12 +92,6 @@ public abstract class OptionBuilderImpl<T, S extends CommandSource> extends Comm
             return null;
 
         LiteralArgumentBuilder<S> option = literal(name);
-        return option.executes(context ->
-                printFunc.apply(context, helpFunc.get()));
-    }
-
-    public void save() {
-        if (saveFunc != null)
-            saveFunc.run();
+        return option.executes(this::help);
     }
 }

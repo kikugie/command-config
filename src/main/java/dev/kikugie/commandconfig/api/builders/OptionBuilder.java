@@ -1,10 +1,11 @@
 package dev.kikugie.commandconfig.api.builders;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.api.CommandNode;
 import dev.kikugie.commandconfig.api.option.ExtendedOptions;
-import dev.kikugie.commandconfig.api.option.OptionValueAccess;
+import dev.kikugie.commandconfig.api.option.access.OptionValueAccess;
 import dev.kikugie.commandconfig.api.option.SimpleOptions;
 import dev.kikugie.commandconfig.impl.option.GenericOptionBuilderImpl;
 import net.minecraft.command.CommandSource;
@@ -68,6 +69,13 @@ public interface OptionBuilder<T, S extends CommandSource> extends CommandNode<S
     static <T, S extends CommandSource> OptionBuilder<T, S> generic(String name, ArgumentType<T> argumentType, Class<T> valueType, Class<S> type) {
         return new GenericOptionBuilderImpl<>(name, argumentType, valueType, type);
     }
+
+    /**
+     * Adds a custom command node to the option. Here be dragons!
+     * @param node Command node builder
+     * @return this
+     */
+    OptionBuilder<T, S> then(@NotNull ArgumentBuilder<S, ?> node);
 
     /**
      * Interface for modifying config state.

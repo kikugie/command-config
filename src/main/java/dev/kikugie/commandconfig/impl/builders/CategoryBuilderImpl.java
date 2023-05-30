@@ -1,5 +1,6 @@
 package dev.kikugie.commandconfig.impl.builders;
 
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.Reference;
@@ -22,15 +23,24 @@ import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
 @ApiStatus.Internal
 public class CategoryBuilderImpl<S extends CommandSource> extends CommandNodeImpl<S> implements CategoryBuilder<S> {
-    private final String name;
-    private final List<CategoryBuilderImpl<S>> categories = new ArrayList<>();
-    private final List<OptionBuilderImpl<?, S>> options = new ArrayList<>();
+    protected final String name;
+    protected final List<CategoryBuilderImpl<S>> categories = new ArrayList<>();
+    protected final List<OptionBuilderImpl<?, S>> options = new ArrayList<>();
+    protected final List<ArgumentBuilder<S, ?>> extraNodes = new ArrayList<>();
 
     public CategoryBuilderImpl(String name, Class<S> type) {
         super(type);
         this.name = name;
 
         Validate.matchesPattern(name, Reference.ALLOWED_NAMES, Reference.categoryError(name, Reference.INVALID_NAME));
+    }
+
+    @Override
+    public CategoryBuilder<S> then(@NotNull ArgumentBuilder<S, ?> node) {
+        Validate.notNull(node, Reference.categoryError(name, Reference.NULL_NODE));
+
+        extraNodes.add(node);
+        return this;
     }
 
     @Override
@@ -51,19 +61,19 @@ public class CategoryBuilderImpl<S extends CommandSource> extends CommandNodeImp
 
     @Override
     public CategoryBuilder<S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc) {
-        this.printFunc = printFunc;
+        super.printFunc(printFunc);
         return this;
     }
 
     @Override
     public CategoryBuilder<S> saveFunc(@NotNull Runnable saveFunc) {
-        this.saveFunc = saveFunc;
+        super.saveFunc(saveFunc);
         return this;
     }
 
     @Override
     public CategoryBuilder<S> helpFunc(@NotNull Supplier<Text> helpFunc) {
-        this.helpFunc = helpFunc;
+        super.helpFunc(helpFunc);
         return this;
     }
 
@@ -76,17 +86,14 @@ public class CategoryBuilderImpl<S extends CommandSource> extends CommandNodeImp
         buildHelpers(category, options);
         buildHelpers(category, categories);
 
-        category.executes(context ->
-                printFunc.apply(context, helpFunc != null ? helpFunc.get() : Reference.NO_HELP_SAD.get()));
-
-
+        category.executes(context -> print(context, helpFunc != null ? helpFunc.get() : Reference.NO_HELP_SAD.get()));
         return category.getArguments().isEmpty() && helpFunc == null ? null : category;
     }
 
     @NotNull
-    @Override
     public LiteralArgumentBuilder<S> build() {
         LiteralArgumentBuilder<S> category = literal(name);
+        extraNodes.forEach(category::then);
         buildNodes(category, options);
         buildNodes(category, categories);
 

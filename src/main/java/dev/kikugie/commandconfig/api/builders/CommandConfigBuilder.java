@@ -1,16 +1,33 @@
 package dev.kikugie.commandconfig.api.builders;
 
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.api.CommandNode;
+import dev.kikugie.commandconfig.api.util.Defaults;
 import dev.kikugie.commandconfig.impl.builders.CommandConfigBuilderImpl;
 import net.minecraft.command.CommandSource;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+//#if MC > 11802
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+//#else
+//$$ import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
+//#endif
+
+/* backup in case formatter yeets it
+    //#if MC > 11802
+    import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+    //#else
+    //$$ import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
+    //#endif
+ */
 
 /**
  * Main class of the mod.
@@ -71,11 +88,24 @@ public interface CommandConfigBuilder<S extends CommandSource> extends CommandNo
      * @param type CommandSource class reference
      * @return {@link CommandConfigBuilderImpl}
      */
-    static <S extends CommandSource> CommandConfigBuilderImpl<S> create(String name, Class<S> type) {
-
-
+    static <S extends CommandSource> CommandConfigBuilder<S> create(String name, Class<S> type) {
         return new CommandConfigBuilderImpl<>(name, type);
     }
+
+    static CommandConfigBuilder<FabricClientCommandSource> client(String name) {
+        return new CommandConfigBuilderImpl<>(name, FabricClientCommandSource.class).printFunc(Defaults.clientPrintFunc());
+    }
+
+    static CommandConfigBuilder<ServerCommandSource> server(String name) {
+        return new CommandConfigBuilderImpl<>(name, ServerCommandSource.class).printFunc(Defaults.serverPrintFunc());
+    }
+
+    /**
+     * Adds a custom command node to the command. Here be dragons!
+     * @param node Command node builder
+     * @return this
+     */
+    CommandConfigBuilder<S> then(@NotNull ArgumentBuilder<S, ?> node);
 
     /**
      * Creates a category, which can contain options and other categories.

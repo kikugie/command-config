@@ -1,7 +1,8 @@
-package dev.kikugie.commandconfig.api.option;
+package dev.kikugie.commandconfig.api.option.access;
 
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +15,26 @@ public class OptionValueAccess<T> {
     protected final List<BiConsumer<T, String>> listeners = new ArrayList<>();
     private final Supplier<Text> getter;
     private final Function<T, Text> setter;
-    private final String name;
+    @Nullable
+    private String name;
 
-    public OptionValueAccess(String name, Supplier<Text> getter, Function<T, Text> setter) {
+    public OptionValueAccess(@NotNull String name,
+                             @NotNull Supplier<Text> getter,
+                             @NotNull Function<T, Text> setter) {
         this.getter = getter;
         this.setter = setter;
         this.name = name;
+    }
+
+    public OptionValueAccess(@NotNull Supplier<Text> getter,
+                             @NotNull Function<T, Text> setter) {
+        this.getter = getter;
+        this.setter = setter;
+    }
+
+    public OptionValueAccess<T> name(@NotNull String name) {
+        this.name = name;
+        return this;
     }
 
     public Text set(@NotNull T val) {

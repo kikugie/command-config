@@ -1,4 +1,4 @@
-package dev.kikugie.commandconfig.api.option;
+package dev.kikugie.commandconfig.api.option.access;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.text.Text;
@@ -18,7 +18,8 @@ public class ListElementAccess<T> {
     private final Function<Integer, Text> elementGetter;
     private final Function<T, Text> elementAppender;
     private final Function<Integer, Pair<T, Text>> elementRemover;
-    private final String name;
+    @Nullable
+    private String name;
 
     public ListElementAccess(@NotNull String name,
                              @NotNull Function<Integer, Text> getter,
@@ -31,6 +32,22 @@ public class ListElementAccess<T> {
         this.elementAppender = appender;
         this.elementRemover = remover;
         this.name = name;
+    }
+
+    public ListElementAccess(@NotNull Function<Integer, Text> getter,
+                             @NotNull BiFunction<Integer, T, Text> setter,
+                             @NotNull Function<T, Text> appender,
+                             @NotNull Function<Integer, Pair<@Nullable T, Text>> remover
+    ) {
+        this.elementGetter = getter;
+        this.elementSetter = setter;
+        this.elementAppender = appender;
+        this.elementRemover = remover;
+    }
+
+    public ListElementAccess<T> name(@NotNull String name) {
+        this.name = name;
+        return this;
     }
 
     public Text set(int index, @NotNull T val) {

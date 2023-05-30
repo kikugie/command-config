@@ -27,10 +27,6 @@ repositories {
         name = "Gradle Plugin Portal"
         url = "https://plugins.gradle.org/m2/"
     }
-//	maven {
-//		name = "TerraformersMC"
-//		url "https://maven.terraformersmc.com/releases/"
-//	}
 }
 
 // https://github.com/FabricMC/fabric-loader/issues/783
@@ -45,11 +41,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // dependencies
-//	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-    // example module import
     modImplementation fabricApi.module("fabric-command-api-${mcVersion > 11802 ? "v2" : "v1"}", project.fabric_api_version)
-
-//	modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
 
     // mixin extensions
 // 	include api(annotationProcessor("com.github.LlamaLad7.mixinextras:mixinextras-fabric:${project.mixin_extras_version}"))
@@ -129,16 +121,12 @@ processTestResources {
     }
 }
 
-// https://github.com/Fallen-Breath/yamlang
 yamlang {
     targetSourceSets = [sourceSets.main]
     inputDir = "assets/${project.mod_id}/lang"
 }
 
-// ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
-// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
 }
 

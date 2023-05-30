@@ -2,7 +2,7 @@ package dev.kikugie.commandconfig.api.builders;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.datafixers.util.Pair;
-import dev.kikugie.commandconfig.api.option.ListElementAccess;
+import dev.kikugie.commandconfig.api.option.access.ListElementAccess;
 import dev.kikugie.commandconfig.impl.command.ListArgumentType;
 import dev.kikugie.commandconfig.impl.option.ListOptionBuilderImpl;
 import net.minecraft.command.CommandSource;

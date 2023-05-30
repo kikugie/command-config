@@ -7,14 +7,31 @@ import dev.kikugie.commandconfig.api.option.ExtendedOptions;
 import dev.kikugie.commandconfig.api.option.SimpleOptions;
 import dev.kikugie.commandconfig.api.util.Defaults;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
+//#if MC > 11802
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+//#else
+//$$ import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+//$$ import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
+//#endif
+
+/* backup in case formatter yeets it
+    //#if MC > 11802
+    import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+    import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+    //#else
+    //$$ import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+    //$$ import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
+    //#endif
+ */
+
+@SuppressWarnings("unused")
 public class TestModClient implements ClientModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("testmod");
 
@@ -107,51 +124,55 @@ public class TestModClient implements ClientModInitializer {
                 .helpFunc(() -> Text.of("This is a test command"))
                 .saveFunc(config::save)
                 .build();
+        //#if MC > 11802
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) -> dispatcher.register(configCommand));
+        //#else
+        //$$ ClientCommandManager.DISPATCHER.register(configCommand);
+        //#endif
     }
 
     private static void createDefaultedConfig() {
         Config config = new Config(true, 1, 1.0F, "stringtest", "quoted string test", "greedy string test", new ArrayList<>(), Config.ExampleEnum.A);
-        var configCommand = CommandConfigBuilder.create("test", FabricClientCommandSource.class)
+        var configCommand = CommandConfigBuilder.client("test")
                 .category((source) -> CategoryBuilder.create("numbers", source)
                         .option((unused) -> SimpleOptions.integer("integer", source)
-                                .valueAccess(Defaults.defaultValueAccess("integer", () -> config.intOpt, (val) -> config.intOpt = val))
+                                .valueAccess(Defaults.defaultValueAccess(() -> config.intOpt, (val) -> config.intOpt = val))
                                 .helpFunc(() -> Text.of("This is an integer option")))
                         .option((unused) -> SimpleOptions.floatArg("float", source)
-                                .valueAccess(Defaults.defaultValueAccess("float", () -> config.floatOpt, (val) -> config.floatOpt = val))
+                                .valueAccess(Defaults.defaultValueAccess(() -> config.floatOpt, (val) -> config.floatOpt = val))
                                 .helpFunc(() -> Text.of("This is a float option"))))
                 .category((source) -> CategoryBuilder.create("strings", source)
                         .option((unused) -> SimpleOptions.string("word", source)
-                                .valueAccess(Defaults.defaultValueAccess("word", () -> config.stringOpt, (val) -> config.stringOpt = val))
+                                .valueAccess(Defaults.defaultValueAccess(() -> config.stringOpt, (val) -> config.stringOpt = val))
                                 .helpFunc(() -> Text.of("This is a string option")))
                         .option((unused) -> SimpleOptions.quotedString("quoted", source)
-                                .valueAccess(Defaults.defaultValueAccess("quoted", () -> config.quotedStringOpt, (val) -> config.quotedStringOpt = val))
+                                .valueAccess(Defaults.defaultValueAccess(() -> config.quotedStringOpt, (val) -> config.quotedStringOpt = val))
                                 .helpFunc(() -> Text.of("This is a quoted string option")))
                         .option((unused) -> SimpleOptions.quotedString("greedy", source)
-                                .valueAccess(Defaults.defaultValueAccess("greedy", () -> config.greedyStringOpt, (val) -> config.greedyStringOpt = val))
+                                .valueAccess(Defaults.defaultValueAccess(() -> config.greedyStringOpt, (val) -> config.greedyStringOpt = val))
                                 .helpFunc(() -> Text.of("This is a greedy string option"))))
                 .option((source) -> SimpleOptions.bool("boolean", source)
-                        .valueAccess(Defaults.defaultValueAccess("boolean", () -> config.boolOpt, (val) -> config.boolOpt = val))
+                        .valueAccess(Defaults.defaultValueAccess(() -> config.boolOpt, (val) -> config.boolOpt = val))
                         .helpFunc(() -> Text.of("This is a boolean option")))
                 .option((source) -> ExtendedOptions.enumArg("enum", Config.ExampleEnum.class, source)
-                        .valueAccess(Defaults.defaultValueAccess("enum", () -> config.enumOpt, (val) -> config.enumOpt = val))
+                        .valueAccess(Defaults.defaultValueAccess(() -> config.enumOpt, (val) -> config.enumOpt = val))
                         .helpFunc(() -> Text.of("This is an enum option")))
                 .option((source) -> ExtendedOptions.intList("list", source)
-                        .elementAccess(Defaults.defaultElementAccess("list", () -> config.intListOpt))
-                        .valueAccess(Defaults.defaultValueAccess("list", () -> config.intListOpt, (val) -> config.intListOpt = val))
+                        .elementAccess(Defaults.defaultElementAccess(() -> config.intListOpt))
+                        .valueAccess(Defaults.defaultValueAccess(() -> config.intListOpt, (val) -> config.intListOpt = val))
                         .helpFunc(() -> Text.of("This is a list option")))
-                .printFunc((context, text) -> {
-                    context.getSource().sendFeedback(text);
-                    return 1;
-                })
-                .helpFunc(() -> Text.of("This is a test command"))
+                .helpFunc(() -> Text.of("This is a test command\nAnd this is a second line!"))
                 .saveFunc(config::save)
                 .build();
+        //#if MC > 11802
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) -> dispatcher.register(configCommand));
+        //#else
+        //$$ ClientCommandManager.DISPATCHER.register(configCommand);
+        //#endif
     }
 
     @Override
     public void onInitializeClient() {
-        createMessyConfig();
+        createDefaultedConfig();
     }
 }

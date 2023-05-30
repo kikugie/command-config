@@ -1,5 +1,6 @@
 package dev.kikugie.commandconfig.api.builders;
 
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.api.CommandNode;
 import dev.kikugie.commandconfig.impl.builders.CategoryBuilderImpl;
@@ -37,6 +38,13 @@ public interface CategoryBuilder<S extends CommandSource> extends CommandNode<S>
     static <S extends CommandSource> CategoryBuilder<S> create(String name, Class<S> type) {
         return new CategoryBuilderImpl<>(name, type);
     }
+
+    /**
+     * Adds a custom command node to the category. Here be dragons!
+     * @param node Command node builder
+     * @return this
+     */
+    CategoryBuilder<S> then(@NotNull ArgumentBuilder<S, ?> node);
 
     /**
      * Creates a category, which can contain options and other categories.

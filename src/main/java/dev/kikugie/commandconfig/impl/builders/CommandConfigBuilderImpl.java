@@ -1,5 +1,6 @@
 package dev.kikugie.commandconfig.impl.builders;
 
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.Reference;
@@ -23,6 +24,7 @@ import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
 @ApiStatus.Internal
 public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNodeImpl<S> implements CommandConfigBuilder<S> {
+    protected final List<ArgumentBuilder<S, ?>> extraNodes = new ArrayList<>();
     private final String baseCommand;
     private final List<CategoryBuilderImpl<S>> categories = new ArrayList<>();
     private final List<OptionBuilderImpl<?, S>> options = new ArrayList<>();
@@ -31,6 +33,14 @@ public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNo
         super(type);
         this.baseCommand = command;
         Validate.matchesPattern(command, Reference.ALLOWED_NAMES, Reference.baseError(baseCommand, Reference.INVALID_NAME));
+    }
+
+    @Override
+    public CommandConfigBuilder<S> then(@NotNull ArgumentBuilder<S, ?> node) {
+        Validate.notNull(node, Reference.baseError(baseCommand, Reference.NULL_NODE));
+
+        this.extraNodes.add(node);
+        return this;
     }
 
     @Override
@@ -51,19 +61,19 @@ public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNo
 
     @Override
     public CommandConfigBuilder<S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc) {
-        this.printFunc = printFunc;
+        super.printFunc(printFunc);
         return this;
     }
 
     @Override
     public CommandConfigBuilder<S> saveFunc(@NotNull Runnable saveFunc) {
-        this.saveFunc = saveFunc;
+        super.saveFunc(saveFunc);
         return this;
     }
 
     @Override
     public CommandConfigBuilder<S> helpFunc(@NotNull Supplier<Text> helpFunc) {
-        this.helpFunc = helpFunc;
+        super.helpFunc(helpFunc);
         return this;
     }
 
@@ -77,19 +87,15 @@ public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNo
         buildHelpers(command, options);
         buildHelpers(command, categories);
 
-        command.executes(context ->
-                printFunc.apply(context, helpFunc != null ? helpFunc.get() : Reference.NO_HELP_SAD.get()));
-
+        command.executes(context -> print(context, helpFunc != null ? helpFunc.get() : Reference.NO_HELP_SAD.get()));
         return command.getArguments().isEmpty() && helpFunc == null ? null : command;
     }
 
     @NotNull
     @Override
     public LiteralArgumentBuilder<S> build() {
-        Validate.notNull(printFunc, Reference.baseError(baseCommand, Reference.NO_PRINT_FUNC));
-
         LiteralArgumentBuilder<S> command = literal(baseCommand);
-
+        extraNodes.forEach(command::then);
         buildNodes(command, options);
         buildNodes(command, categories);
 

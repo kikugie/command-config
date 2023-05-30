@@ -29,22 +29,24 @@ public class GenericOptionBuilderImpl<T, S extends CommandSource> extends Option
         this.typeName = valueType.getSimpleName();
     }
 
-    @Override
     public @NotNull LiteralArgumentBuilder<S> build() {
         Validate.notNull(printFunc, Reference.optionError(name, Reference.NO_PRINT_FUNC));
-        Validate.notNull(valueAccess, Reference.optionError(name, Reference.NO_VALUE_ACCESS));
+        if (extraNodes.isEmpty())
+            Validate.notNull(valueAccess, Reference.optionError(name, Reference.NO_VALUE_ACCESS));
 
         LiteralArgumentBuilder<S> option = literal(name);
+        extraNodes.forEach(option::then);
+        if (valueAccess == null)
+            return option;
 
         // Getter node
-        option.executes(context ->
-                printFunc.apply(context, valueAccess.get()));
+        option.executes(context -> print(context, valueAccess.get()));
 
         // Setter node
         RequiredArgumentBuilder<S, T> argument = argument(typeName, argumentType);
         argument.executes(context -> {
             T newVal = context.getArgument(typeName, valueType);
-            int result = printFunc.apply(context, valueAccess.set(newVal));
+            int result = print(context, valueAccess.set(newVal));
 
             save();
             return result;

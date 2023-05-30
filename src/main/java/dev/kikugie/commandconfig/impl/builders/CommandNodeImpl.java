@@ -14,6 +14,7 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 @ApiStatus.Internal
+@SuppressWarnings("unused")
 public abstract class CommandNodeImpl<S extends CommandSource> implements CommandNode<S> {
     protected final Class<S> type;
     protected BiFunction<CommandContext<S>, Text, Integer> printFunc;
@@ -27,13 +28,32 @@ public abstract class CommandNodeImpl<S extends CommandSource> implements Comman
         this.type = type;
     }
 
+    @Override
+    public int print(CommandContext<S> context, Text text) {
+        return printFunc.apply(context, text);
+    }
+
+    @Override
+    public int help(CommandContext<S> context) {
+        return printFunc != null && helpFunc != null ? printFunc.apply(context, helpFunc.get()) : -1;
+    }
+
+    @Override
+    public void save() {
+        if (saveFunc != null)
+            saveFunc.run();
+    }
+
     /**
      * Specifies result output function.
      *
      * @param printFunc Accepts {@link CommandContext} and {@link Text}, produces integer result
      * @return this
      */
-    abstract CommandNode<S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc);
+    CommandNode<S> printFunc(@NotNull BiFunction<CommandContext<S>, Text, Integer> printFunc) {
+        this.printFunc = printFunc;
+        return this;
+    }
 
     /**
      * Runs every time value is set. Basically, a global listener.
@@ -41,7 +61,10 @@ public abstract class CommandNodeImpl<S extends CommandSource> implements Comman
      * @param saveFunc Saving runnable
      * @return this
      */
-    abstract CommandNode<S> saveFunc(@NotNull Runnable saveFunc);
+    CommandNode<S> saveFunc(@NotNull Runnable saveFunc) {
+        this.saveFunc = saveFunc;
+        return this;
+    }
 
     /**
      * Specifies value used for `help` subcommand.
@@ -49,21 +72,9 @@ public abstract class CommandNodeImpl<S extends CommandSource> implements Comman
      * @param helpFunc Produces helper text
      * @return this
      */
-    abstract CommandNode<S> helpFunc(@NotNull Supplier<Text> helpFunc);
-
-    @Nullable
-    public BiFunction<CommandContext<S>, Text, Integer> getPrintFunc() {
-        return printFunc;
-    }
-
-    @Nullable
-    public Runnable getSaveFunc() {
-        return saveFunc;
-    }
-
-    @Nullable
-    public Supplier<Text> getHelpFunc() {
-        return helpFunc;
+    CommandNode<S> helpFunc(@NotNull Supplier<Text> helpFunc) {
+        this.helpFunc = helpFunc;
+        return this;
     }
 
     @Nullable
@@ -73,8 +84,8 @@ public abstract class CommandNodeImpl<S extends CommandSource> implements Comman
 
     public void buildNodes(LiteralArgumentBuilder<S> root, Collection<? extends CommandNodeImpl<S>> nodes) {
         nodes.forEach(builder -> {
-            BiFunction<CommandContext<S>, Text, Integer> printFunc = builder.getPrintFunc();
-            Runnable saveFunc = builder.getSaveFunc();
+            BiFunction<CommandContext<S>, Text, Integer> printFunc = builder.printFunc;
+            Runnable saveFunc = builder.saveFunc;
 
             if (printFunc == null && this.printFunc != null)
                 builder.printFunc(this.printFunc);
