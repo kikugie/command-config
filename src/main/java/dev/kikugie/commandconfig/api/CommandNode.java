@@ -9,12 +9,24 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Basic functionality for command nodes.
  *
- * @param <S> CommandSource type
+ * @param <S> {@link CommandSource} type
  */
 public interface CommandNode<S extends CommandSource> {
+    /**
+     * Runs @code{printFunc}
+     */
     int print(CommandContext<S> context, Text text);
+
+    /**
+     * Runs @code{helpFunc}
+     */
     int help(CommandContext<S> context);
+
+    /**
+     * Runs @code{saveFunc}
+     */
     void save();
+
     @NotNull
     LiteralArgumentBuilder<S> build();
 }

@@ -20,8 +20,8 @@ import java.util.function.Supplier;
 /**
  * Option node in the command.
  *
- * @param <T> Argument used in the option
- * @param <S> CommandSource type
+ * @param <T> Value type in the option
+ * @param <S> {@link CommandSource} type
  * @see #generic(String, ArgumentType, Class, Class)
  * @see SimpleOptions
  * @see ExtendedOptions
@@ -59,7 +59,7 @@ public interface OptionBuilder<T, S extends CommandSource> extends CommandNode<S
      * }</pre>
      *
      * @param name         option name. Cannot contain spaces
-     * @param argumentType command argument type matching `valueType`
+     * @param argumentType command argument type matching {@code `valueType`}
      * @param valueType    value type of the option
      * @param type         CommandSource class reference, passed from top level node
      * @return {@link GenericOptionBuilderImpl}
@@ -97,7 +97,7 @@ public interface OptionBuilder<T, S extends CommandSource> extends CommandNode<S
     /**
      * Adds a listener that is invoked upon changing the value.
      *
-     * @param listener Accepts new value and option's ID
+     * @param listener Accepts new value and option's name
      * @return this
      */
     OptionBuilder<T, S> listener(@NotNull BiConsumer<T, String> listener);
@@ -119,7 +119,7 @@ public interface OptionBuilder<T, S extends CommandSource> extends CommandNode<S
     OptionBuilder<T, S> saveFunc(@NotNull Runnable saveFunc);
 
     /**
-     * Specifies value used for `help` subcommand.
+     * Specifies value used for {@code `help`} subcommand.
      *
      * @param helpFunc Produces helper text
      * @return this

@@ -110,7 +110,7 @@ public interface CommandConfigBuilder<S extends CommandSource> extends CommandNo
     /**
      * Creates a category, which can contain options and other categories.
      *
-     * @param category Provides CommandSource class reference for creating a category, returns a builder for it
+     * @param category Provides {@link CommandSource} class reference for creating a category, returns a builder for it
      * @return this
      */
     CommandConfigBuilder<S> category(@NotNull Function<Class<S>, CategoryBuilder<S>> category);
@@ -118,7 +118,7 @@ public interface CommandConfigBuilder<S extends CommandSource> extends CommandNo
     /**
      * Creates an option with arbitrary type.
      *
-     * @param option Provides CommandSource class reference for creating an option, returns a builder for it
+     * @param option Provides {@link CommandSource} class reference for creating an option, returns a builder for it
      * @return this
      */
     CommandConfigBuilder<S> option(@NotNull Function<Class<S>, OptionBuilder<?, S>> option);
@@ -140,7 +140,7 @@ public interface CommandConfigBuilder<S extends CommandSource> extends CommandNo
     CommandConfigBuilder<S> saveFunc(@NotNull Runnable saveFunc);
 
     /**
-     * Specifies value used for `help` subcommand.
+     * Specifies value used for {@code `help`} subcommand.
      *
      * @param helpFunc Produces helper text
      * @return this

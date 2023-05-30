@@ -26,7 +26,7 @@ public interface ListOptionBuilder<L extends List<T>, T, S extends CommandSource
     /**
      * Creates a builder for a list option type.
      * <br>
-     * Methods inherited from {@link OptionBuilder} apply to entire list. Optionally, `elementAccess()` can be specified, which adds additional command nodes.
+     * Methods inherited from {@link OptionBuilder} apply to entire list. Optionally, {@link #elementAccess(ListElementAccess)} can be specified, which adds additional command nodes.
      * List option example:
      * <pre>{@code
      * // Category setup
@@ -71,9 +71,9 @@ public interface ListOptionBuilder<L extends List<T>, T, S extends CommandSource
      * }</pre>
      *
      * @param name         option name. Cannot contain spaces
-     * @param argumentType command argument type matching `valueType`
+     * @param argumentType command argument type matching {@code `valueType`}
      * @param valueType    value type of the option
-     * @param type         CommandSource class reference, passed from top level node
+     * @param type         {@link CommandSource} class reference, passed from top level node
      * @return {@link ListOptionBuilderImpl}
      */
     static <L extends List<T>, S extends CommandSource, T> ListOptionBuilder<L, T, S> genericList(String name, ArgumentType<T> argumentType, Class<T> valueType, Class<S> type) {
@@ -97,8 +97,8 @@ public interface ListOptionBuilder<L extends List<T>, T, S extends CommandSource
      *
      * @param getter   Gets list element and returns response {@link Text}
      * @param setter   Accepts new element at specified index and returns response {@link Text}
-     * @param appender Accepts new element to append at the ned of the list and returns response {@link Text}
-     * @param remover  Accepts element index and return removed value and response {@link Text}
+     * @param appender Accepts new element to append at the end of the list and returns response {@link Text}
+     * @param remover  Accepts element index, returns removed value and response {@link Text}
      * @return this
      */
     ListOptionBuilder<L, T, S> elementAccess(@NotNull Function<Integer, Text> getter,
@@ -109,7 +109,7 @@ public interface ListOptionBuilder<L extends List<T>, T, S extends CommandSource
     /**
      * Adds a listener that is invoked upon changing an element.
      *
-     * @param listener Accepts new value and option's ID
+     * @param listener Accepts new value and option's name
      * @return this
      */
     ListOptionBuilder<L, T, S> elementListener(@NotNull BiConsumer<T, String> listener);

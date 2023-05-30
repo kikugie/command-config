@@ -32,7 +32,7 @@ public interface CategoryBuilder<S extends CommandSource> extends CommandNode<S>
      * }</pre>
      *
      * @param name category name. Cannot contain spaces
-     * @param type CommandSource class reference, passed from top level node
+     * @param type {@link CommandSource} class reference, passed from top level node
      * @return {@link CategoryBuilderImpl}
      */
     static <S extends CommandSource> CategoryBuilder<S> create(String name, Class<S> type) {
@@ -49,7 +49,7 @@ public interface CategoryBuilder<S extends CommandSource> extends CommandNode<S>
     /**
      * Creates a category, which can contain options and other categories.
      *
-     * @param category Provides CommandSource class reference for creating a category, returns a builder for it
+     * @param category Provides {@link CommandSource} class reference for creating a category, returns a builder for it
      * @return this
      */
     CategoryBuilder<S> category(@NotNull Function<Class<S>, CategoryBuilder<S>> category);
@@ -57,7 +57,7 @@ public interface CategoryBuilder<S extends CommandSource> extends CommandNode<S>
     /**
      * Creates an option with arbitrary type.
      *
-     * @param option Provides CommandSource class reference for creating an option, returns a builder for it
+     * @param option Provides {@link CommandSource} class reference for creating an option, returns a builder for it
      * @return this
      */
     CategoryBuilder<S> option(@NotNull Function<Class<S>, OptionBuilder<?, S>> option);
@@ -79,7 +79,7 @@ public interface CategoryBuilder<S extends CommandSource> extends CommandNode<S>
     CategoryBuilder<S> saveFunc(@NotNull Runnable saveFunc);
 
     /**
-     * Specifies value used for `help` subcommand.
+     * Specifies value used for {@code `help`} subcommand.
      *
      * @param helpFunc Produces helper text
      * @return this

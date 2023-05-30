@@ -1,21 +1,29 @@
 package dev.kikugie.commandconfig.api.util;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.datafixers.types.Func;
 import com.mojang.datafixers.util.Pair;
 import dev.kikugie.commandconfig.Reference;
 import dev.kikugie.commandconfig.api.option.access.ListElementAccess;
 import dev.kikugie.commandconfig.api.option.access.OptionValueAccess;
+import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
+
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 //#if MC > 11802
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+
+import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 //#else
 //$$ import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 //#endif
@@ -30,6 +38,18 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
 @SuppressWarnings("unused")
 public class Defaults {
+    /**
+     * Provides default value access with following responses:
+     * <pre>{@code
+     * - get: Option value: <value>
+     * - set: Option value set to: <value>
+     * }</pre>
+     *
+     * @param getter Value getter
+     * @param setter Value setter
+     * @param <T> Value type
+     * @return {@link OptionValueAccess} to be passed to an option
+     */
     public static <T> OptionValueAccess<T> defaultValueAccess(Supplier<T> getter, Consumer<T> setter) {
         return new OptionValueAccess<>(
                 () -> Reference.translated("commandconfig.response.option.get", getter.get()),
@@ -39,6 +59,21 @@ public class Defaults {
                 });
     }
 
+    /**
+     * Provides default list element access with following responses:
+     * <pre>{@code
+     * - get: Element value: <value>
+     * - set: Set element value <value> at index <index>
+     * - add: Added element value <value> at index <index>
+     * - remove: Removed element value <value> at index <index>
+     * - invalid index: Index <index> is out of bounds
+     * }</pre>
+     *
+     * @param listSupplier Supplier that returns target list reference
+     * @param <L> List type
+     * @param <T> Value type
+     * @return {@link ListElementAccess} to be passed to a list option
+     */
     public static <L extends List<T>, T> ListElementAccess<T> defaultElementAccess(Supplier<L> listSupplier) {
         return new ListElementAccess<>(
                 (index) -> {
@@ -70,6 +105,34 @@ public class Defaults {
                 });
     }
 
+    /**
+     * Provides a literal node, that runs provided function upon executing.
+     *
+     * @param name Node name
+     * @param func Function to execute
+     * @param <S> {@link CommandSource} type
+     * @return {@link LiteralArgumentBuilder} to be passed to {@code node()} method
+     */
+    public static <S extends CommandSource> LiteralArgumentBuilder<S> executorNode(@NotNull String name, @NotNull Function<CommandContext<S>, Integer> func) {
+        LiteralArgumentBuilder<S> node = literal(name);
+        return node.executes(func::apply);
+    }
+
+    /**
+     * Provides a literal node named "reset", that runs provided config reset function.
+     *
+     * @param func Config reset function
+     * @param <S> {@link CommandSource} type
+     * @return {@link LiteralArgumentBuilder} to be passed to {@code node()} method
+     */
+    public static <S extends CommandSource> LiteralArgumentBuilder<S> resetNode(@NotNull Function<CommandContext<S>, Integer> func) {
+        return executorNode("reset", func);
+    }
+
+    /**
+     * Client-side print function that responds in the game chat.
+     * @return Print function to be passed to {@code printFunc()} method
+     */
     public static BiFunction<CommandContext<FabricClientCommandSource>, Text, Integer> clientPrintFunc() {
         return (context, text) -> {
             context.getSource().sendFeedback(text);
@@ -77,6 +140,10 @@ public class Defaults {
         };
     }
 
+    /**
+     * Server-side print function that responds to the source player in the game chat.
+     * @return Print function to be passed to {@code printFunc()} method
+     */
     public static BiFunction<CommandContext<ServerCommandSource>, Text, Integer> serverPrintFunc() {
         return (context, text) -> {
             context.getSource().sendFeedback(text, false);
@@ -84,6 +151,21 @@ public class Defaults {
         };
     }
 
+    /**
+     * Server-side print function that responds to the source player in the game chat and broadcasts to server operators.
+     * @return Print function to be passed to {@code printFunc()} method
+     */
+    public static BiFunction<CommandContext<ServerCommandSource>, Text, Integer> broadcastPrintFunc() {
+        return (context, text) -> {
+            context.getSource().sendFeedback(text, true);
+            return 1;
+        };
+    }
+
+    /**
+     * Print function that only writes responses to the provided logger.
+     * @return Print function to be passed to {@code printFunc()} method
+     */
     public static BiFunction<CommandContext<CommandContext<?>>, Text, Integer> loggerPrintFunc(Logger logger) {
         return (context, text) -> {
             logger.info(text.toString());

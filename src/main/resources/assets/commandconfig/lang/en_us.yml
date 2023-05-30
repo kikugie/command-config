@@ -10,6 +10,6 @@ commandconfig:
       set: "Option value set to: %s"
       element:
         get: "Element value: %s"
-        set: "Set element value at %s index %s"
+        set: "Set element value %s at index %s"
         add: "Added element value %s at index %s"
         remove: "Removed element value %s at index %s"
