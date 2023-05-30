@@ -36,7 +36,7 @@ public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNo
     }
 
     @Override
-    public CommandConfigBuilder<S> then(@NotNull ArgumentBuilder<S, ?> node) {
+    public CommandConfigBuilder<S> node(@NotNull ArgumentBuilder<S, ?> node) {
         Validate.notNull(node, Reference.baseError(baseCommand, Reference.NULL_NODE));
 
         this.extraNodes.add(node);

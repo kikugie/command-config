@@ -36,7 +36,7 @@ public abstract class OptionBuilderImpl<T, S extends CommandSource> extends Comm
     }
 
     @Override
-    public OptionBuilder<T, S> then(@NotNull ArgumentBuilder<S, ?> node) {
+    public OptionBuilder<T, S> node(@NotNull ArgumentBuilder<S, ?> node) {
         Validate.notNull(node, Reference.baseError(name, Reference.NULL_NODE));
 
         this.extraNodes.add(node);

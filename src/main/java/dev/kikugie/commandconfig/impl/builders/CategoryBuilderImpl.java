@@ -36,7 +36,7 @@ public class CategoryBuilderImpl<S extends CommandSource> extends CommandNodeImp
     }
 
     @Override
-    public CategoryBuilder<S> then(@NotNull ArgumentBuilder<S, ?> node) {
+    public CategoryBuilder<S> node(@NotNull ArgumentBuilder<S, ?> node) {
         Validate.notNull(node, Reference.categoryError(name, Reference.NULL_NODE));
 
         extraNodes.add(node);

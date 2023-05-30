@@ -44,7 +44,7 @@ public interface CategoryBuilder<S extends CommandSource> extends CommandNode<S>
      * @param node Command node builder
      * @return this
      */
-    CategoryBuilder<S> then(@NotNull ArgumentBuilder<S, ?> node);
+    CategoryBuilder<S> node(@NotNull ArgumentBuilder<S, ?> node);
 
     /**
      * Creates a category, which can contain options and other categories.

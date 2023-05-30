@@ -105,7 +105,7 @@ public interface CommandConfigBuilder<S extends CommandSource> extends CommandNo
      * @param node Command node builder
      * @return this
      */
-    CommandConfigBuilder<S> then(@NotNull ArgumentBuilder<S, ?> node);
+    CommandConfigBuilder<S> node(@NotNull ArgumentBuilder<S, ?> node);
 
     /**
      * Creates a category, which can contain options and other categories.

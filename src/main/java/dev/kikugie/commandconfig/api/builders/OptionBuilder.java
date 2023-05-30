@@ -75,7 +75,7 @@ public interface OptionBuilder<T, S extends CommandSource> extends CommandNode<S
      * @param node Command node builder
      * @return this
      */
-    OptionBuilder<T, S> then(@NotNull ArgumentBuilder<S, ?> node);
+    OptionBuilder<T, S> node(@NotNull ArgumentBuilder<S, ?> node);
 
     /**
      * Interface for modifying config state.
