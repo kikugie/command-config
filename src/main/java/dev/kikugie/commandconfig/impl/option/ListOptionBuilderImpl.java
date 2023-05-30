@@ -13,6 +13,7 @@ import dev.kikugie.commandconfig.impl.command.ListArgumentType;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
@@ -32,7 +32,7 @@ public class ListOptionBuilderImpl<L extends List<T>, T, S extends CommandSource
     private final U argumentType;
     private final Class<T> valueType;
     private final String typeName;
-    private ListElementAccess<T> elementAccess;
+    private ListElementAccess<T, S> elementAccess;
 
     public ListOptionBuilderImpl(String name,
                                  ListArgumentType<T, U> listArgumentType,
@@ -47,7 +47,7 @@ public class ListOptionBuilderImpl<L extends List<T>, T, S extends CommandSource
     }
 
     @Override
-    public ListOptionBuilder<L, T, S> elementAccess(@NotNull ListElementAccess<T> access) {
+    public ListOptionBuilder<L, T, S> elementAccess(@NotNull ListElementAccess<T, S> access) {
         Validate.notNull(access, Reference.optionError(name, Reference.NULL_ELEMENT_ACCESS));
 
         this.elementAccess = access.name(name);
@@ -55,10 +55,10 @@ public class ListOptionBuilderImpl<L extends List<T>, T, S extends CommandSource
     }
 
     @Override
-    public ListOptionBuilder<L, T, S> elementAccess(@NotNull Function<Integer, Text> getter,
-                                                    @NotNull BiFunction<Integer, T, Text> setter,
-                                                    @NotNull Function<T, Text> appender,
-                                                    @NotNull Function<Integer, Pair<@Nullable T, Text>> remover) {
+    public ListOptionBuilder<L, T, S> elementAccess(@NotNull BiFunction<CommandContext<S>, Integer, Text> getter,
+                                                    @NotNull TriFunction<CommandContext<S>, Integer, T, Text> setter,
+                                                    @NotNull BiFunction<CommandContext<S>, T, Text> appender,
+                                                    @NotNull BiFunction<CommandContext<S>, Integer, Pair<@Nullable T, Text>> remover) {
         this.elementAccess = new ListElementAccess<>(name, getter, setter, appender, remover);
         return this;
     }
@@ -73,7 +73,6 @@ public class ListOptionBuilderImpl<L extends List<T>, T, S extends CommandSource
     }
 
     @NotNull
-    @Override
     public LiteralArgumentBuilder<S> build() {
         Validate.notNull(printFunc, Reference.optionError(name, Reference.NO_PRINT_FUNC));
         if (extraNodes.isEmpty())
@@ -93,11 +92,13 @@ public class ListOptionBuilderImpl<L extends List<T>, T, S extends CommandSource
 
     private LiteralArgumentBuilder<S> list() {
         return (LiteralArgumentBuilder<S>) (Object) literal("list")
-                .executes(context -> printFunc.apply((CommandContext<S>) (Object) context, valueAccess.get()))
+                .executes(context -> printFunc.apply((CommandContext<S>) (Object) context,
+                        valueAccess.get((CommandContext<S>) (Object) context)))
                 .then(argument(typeName + "...", listArgumentType)
                         .executes(context -> {
                             L val = (L) ListArgumentType.getList(context, typeName + "...");
-                            int res = print((CommandContext<S>) (Object) context, valueAccess.set(val));
+                            int res = print((CommandContext<S>) (Object) context,
+                                    valueAccess.set((CommandContext<S>) (Object) context, val));
 
                             save();
                             return res;
@@ -109,7 +110,8 @@ public class ListOptionBuilderImpl<L extends List<T>, T, S extends CommandSource
                 .then(argument(typeName, argumentType)
                         .executes(context -> {
                             T val = context.getArgument(typeName, valueType);
-                            int res = print((CommandContext<S>) (Object) context, elementAccess.append(val));
+                            int res = print((CommandContext<S>) (Object) context,
+                                    elementAccess.append((CommandContext<S>) (Object) context, val));
 
                             save();
                             return res;
@@ -121,7 +123,8 @@ public class ListOptionBuilderImpl<L extends List<T>, T, S extends CommandSource
                 .then(argument("index", IntegerArgumentType.integer(0))
                         .executes(context -> {
                             int index = context.getArgument("index", Integer.class);
-                            int res = print((CommandContext<S>) (Object) context, elementAccess.get(index));
+                            int res = print((CommandContext<S>) (Object) context,
+                                    elementAccess.get((CommandContext<S>) (Object) context, index));
 
                             save();
                             return res;
@@ -133,7 +136,8 @@ public class ListOptionBuilderImpl<L extends List<T>, T, S extends CommandSource
                 .then(argument("index", IntegerArgumentType.integer(0))
                         .executes(context -> {
                             int index = context.getArgument("index", Integer.class);
-                            int res = print((CommandContext<S>) (Object) context, elementAccess.remove(index));
+                            int res = print((CommandContext<S>) (Object) context,
+                                    elementAccess.remove((CommandContext<S>) (Object) context, index));
 
                             save();
                             return res;
@@ -147,7 +151,8 @@ public class ListOptionBuilderImpl<L extends List<T>, T, S extends CommandSource
                                 .executes(context -> {
                                     T val = context.getArgument(typeName, valueType);
                                     int index = context.getArgument("index", Integer.class);
-                                    int res = print((CommandContext<S>) (Object) context, elementAccess.set(index, val));
+                                    int res = print((CommandContext<S>) (Object) context,
+                                            elementAccess.set((CommandContext<S>) (Object) context, index, val));
 
                                     save();
                                     return res;

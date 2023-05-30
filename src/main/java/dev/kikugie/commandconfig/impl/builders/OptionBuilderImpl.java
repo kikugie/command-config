@@ -26,7 +26,7 @@ import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 public abstract class OptionBuilderImpl<T, S extends CommandSource> extends CommandNodeImpl<S> implements OptionBuilder<T, S> {
     protected final String name;
     protected final List<ArgumentBuilder<S, ?>> extraNodes = new ArrayList<>();
-    protected OptionValueAccess<T> valueAccess;
+    protected OptionValueAccess<T, S> valueAccess;
 
     public OptionBuilderImpl(String name, Class<S> type) {
         super(type);
@@ -44,7 +44,7 @@ public abstract class OptionBuilderImpl<T, S extends CommandSource> extends Comm
     }
 
     @Override
-    public OptionBuilder<T, S> valueAccess(@NotNull OptionValueAccess<T> access) {
+    public OptionBuilder<T, S> valueAccess(@NotNull OptionValueAccess<T, S> access) {
         Validate.notNull(access, Reference.optionError(name, Reference.NULL_VALUE_ACCESS));
 
         this.valueAccess = access.name(name);
@@ -52,7 +52,7 @@ public abstract class OptionBuilderImpl<T, S extends CommandSource> extends Comm
     }
 
     @Override
-    public OptionBuilder<T, S> valueAccess(@NotNull Supplier<Text> getter, @NotNull Function<T, Text> setter) {
+    public OptionBuilder<T, S> valueAccess(@NotNull Function<CommandContext<S>, Text> getter, @NotNull BiFunction<CommandContext<S>, T, Text> setter) {
         this.valueAccess = new OptionValueAccess<>(name, getter, setter);
         return this;
     }

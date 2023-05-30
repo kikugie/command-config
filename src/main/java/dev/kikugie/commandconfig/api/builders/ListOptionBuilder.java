@@ -1,18 +1,20 @@
 package dev.kikugie.commandconfig.api.builders;
 
 import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.datafixers.util.Pair;
 import dev.kikugie.commandconfig.api.option.access.ListElementAccess;
 import dev.kikugie.commandconfig.impl.command.ListArgumentType;
 import dev.kikugie.commandconfig.impl.option.ListOptionBuilderImpl;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
+import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * List option node
@@ -88,7 +90,7 @@ public interface ListOptionBuilder<L extends List<T>, T, S extends CommandSource
      * @param access {@link ListElementAccess} instance
      * @return this
      */
-    ListOptionBuilder<L, T, S> elementAccess(@NotNull ListElementAccess<T> access);
+    ListOptionBuilder<L, T, S> elementAccess(@NotNull ListElementAccess<T, S> access);
 
     /**
      * Interface for modifying list elements.
@@ -101,10 +103,10 @@ public interface ListOptionBuilder<L extends List<T>, T, S extends CommandSource
      * @param remover  Accepts element index, returns removed value and response {@link Text}
      * @return this
      */
-    ListOptionBuilder<L, T, S> elementAccess(@NotNull Function<Integer, Text> getter,
-                                             @NotNull BiFunction<Integer, T, Text> setter,
-                                             @NotNull Function<T, Text> appender,
-                                             @NotNull Function<Integer, Pair<T, Text>> remover);
+    ListOptionBuilder<L, T, S> elementAccess(@NotNull BiFunction<CommandContext<S>, Integer, Text> getter,
+                                             @NotNull TriFunction<CommandContext<S>, Integer, T, Text> setter,
+                                             @NotNull BiFunction<CommandContext<S>, T, Text> appender,
+                                             @NotNull BiFunction<CommandContext<S>, Integer, Pair<@Nullable T, Text>> remover);
 
     /**
      * Adds a listener that is invoked upon changing an element.

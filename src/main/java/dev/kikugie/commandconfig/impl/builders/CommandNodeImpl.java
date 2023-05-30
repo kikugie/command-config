@@ -77,6 +77,8 @@ public abstract class CommandNodeImpl<S extends CommandSource> implements Comman
         return this;
     }
 
+    public abstract LiteralArgumentBuilder<S> build();
+
     @Nullable
     public LiteralArgumentBuilder<S> buildHelpFunc() {
         return null;

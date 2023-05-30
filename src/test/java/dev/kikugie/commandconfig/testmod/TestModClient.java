@@ -40,70 +40,70 @@ public class TestModClient implements ClientModInitializer {
         var configCommand = CommandConfigBuilder.create("test", FabricClientCommandSource.class)
                 .category((source) -> CategoryBuilder.create("numbers", source)
                         .option((unused) -> SimpleOptions.integer("integer", source)
-                                .valueAccess(() -> Text.of("Integer option is " + config.intOpt),
-                                        (val) -> {
+                                .valueAccess((context) -> Text.of("Integer option is " + config.intOpt),
+                                        (context, val) -> {
                                             config.intOpt = val;
                                             return Text.of("Integer option set to " + val);
                                         })
                                 .helpFunc(() -> Text.of("This is an integer option")))
                         .option((unused) -> SimpleOptions.floatArg("float", source)
-                                .valueAccess(() -> Text.of("Float option is " + config.floatOpt),
-                                        (val) -> {
+                                .valueAccess((context) -> Text.of("Float option is " + config.floatOpt),
+                                        (context, val) -> {
                                             config.floatOpt = val;
                                             return Text.of("Float option set to " + val);
                                         })
                                 .helpFunc(() -> Text.of("This is a float option"))))
                 .category((source) -> CategoryBuilder.create("strings", source)
                         .option((unused) -> SimpleOptions.string("word", source)
-                                .valueAccess(() -> Text.of("String option is " + config.stringOpt),
-                                        (val) -> {
+                                .valueAccess((context) -> Text.of("String option is " + config.stringOpt),
+                                        (context, val) -> {
                                             config.stringOpt = val;
                                             return Text.of("String option set to \"" + val + "\"");
                                         })
                                 .helpFunc(() -> Text.of("This is a string option")))
                         .option((unused) -> SimpleOptions.quotedString("quoted", source)
-                                .valueAccess(() -> Text.of("String option is " + config.quotedStringOpt),
-                                        (val) -> {
+                                .valueAccess((context) -> Text.of("String option is " + config.quotedStringOpt),
+                                        (context, val) -> {
                                             config.quotedStringOpt = val;
                                             return Text.of("String option set to \"" + val + "\"");
                                         })
                                 .helpFunc(() -> Text.of("This is a quoted string option")))
                         .option((unused) -> SimpleOptions.quotedString("greedy", source)
-                                .valueAccess(() -> Text.of("String option is " + config.greedyStringOpt),
-                                        (val) -> {
+                                .valueAccess((context) -> Text.of("String option is " + config.greedyStringOpt),
+                                        (context, val) -> {
                                             config.greedyStringOpt = val;
                                             return Text.of("String option set to \"" + val + "\"");
                                         })
                                 .helpFunc(() -> Text.of("This is a greedy string option"))))
                 .option((source) -> SimpleOptions.bool("boolean", source)
-                        .valueAccess(() -> Text.of("Boolean option is " + config.boolOpt),
-                                (val) -> {
+                        .valueAccess((context) -> Text.of("Boolean option is " + config.boolOpt),
+                                (context, val) -> {
                                     config.boolOpt = val;
                                     return Text.of("Boolean option set to \"" + val + "\"");
                                 })
                         .helpFunc(() -> Text.of("This is a boolean option")))
                 .option((source) -> ExtendedOptions.enumArg("enum", Config.ExampleEnum.class, source)
-                        .valueAccess(() -> Text.of("Enum option is " + config.enumOpt),
-                                (val) -> {
+                        .valueAccess((context) -> Text.of("Enum option is " + config.enumOpt),
+                                (context, val) -> {
                                     config.enumOpt = val;
                                     return Text.of("Enum option set to \"" + val + "\"");
                                 })
                         .helpFunc(() -> Text.of("This is an enum option")))
                 .option((source) -> ExtendedOptions.intList("list", source)
                         .elementAccess(
-                                (index) -> index < config.intListOpt.size() ? Text.of("List element is " + config.intListOpt.get(index)) : Text.of("Invalid index!"),
-                                (index, val) -> {
+                                (context, index) -> index < config.intListOpt.size() ? Text.of("List element is " + config.intListOpt.get(index)) : Text.of("Invalid index!"),
+                                (context, index, val) -> {
                                     if (index < config.intListOpt.size()) {
                                         config.intListOpt.set(index, val);
                                         return Text.of("Element set");
                                     }
                                     return Text.of("Invalid index!");
                                 },
-                                (value) -> {
+                                (context, value) -> {
                                     config.intListOpt.add(value);
                                     return Text.of("Element appended");
                                 },
-                                (index) -> {
+                                (context, index) -> {
                                     if (index < config.intListOpt.size()) {
                                         int removed = config.intListOpt.get(index);
                                         config.intListOpt.remove(index);
@@ -111,8 +111,8 @@ public class TestModClient implements ClientModInitializer {
                                     }
                                     return new Pair<>(null, Text.of("Invalid index!"));
                                 })
-                        .valueAccess(() -> Text.of("List option is " + config.intListOpt),
-                                (val) -> {
+                        .valueAccess((context) -> Text.of("List option is " + config.intListOpt),
+                                (context, val) -> {
                                     config.intListOpt = val;
                                     return Text.of("List option set to \"" + val + "\"");
                                 })
@@ -136,30 +136,30 @@ public class TestModClient implements ClientModInitializer {
         var configCommand = CommandConfigBuilder.client("test")
                 .category((source) -> CategoryBuilder.create("numbers", source)
                         .option((unused) -> SimpleOptions.integer("integer", source)
-                                .valueAccess(Defaults.defaultValueAccess(() -> config.intOpt, (val) -> config.intOpt = val))
+                                .valueAccess(Defaults.defaultValueAccess((context) -> config.intOpt, (context, val) -> config.intOpt = val))
                                 .helpFunc(() -> Text.of("This is an integer option")))
                         .option((unused) -> SimpleOptions.floatArg("float", source)
-                                .valueAccess(Defaults.defaultValueAccess(() -> config.floatOpt, (val) -> config.floatOpt = val))
+                                .valueAccess(Defaults.defaultValueAccess((context) -> config.floatOpt, (context, val) -> config.floatOpt = val))
                                 .helpFunc(() -> Text.of("This is a float option"))))
                 .category((source) -> CategoryBuilder.create("strings", source)
                         .option((unused) -> SimpleOptions.string("word", source)
-                                .valueAccess(Defaults.defaultValueAccess(() -> config.stringOpt, (val) -> config.stringOpt = val))
+                                .valueAccess(Defaults.defaultValueAccess((context) -> config.stringOpt, (context, val) -> config.stringOpt = val))
                                 .helpFunc(() -> Text.of("This is a string option")))
                         .option((unused) -> SimpleOptions.quotedString("quoted", source)
-                                .valueAccess(Defaults.defaultValueAccess(() -> config.quotedStringOpt, (val) -> config.quotedStringOpt = val))
+                                .valueAccess(Defaults.defaultValueAccess((context) -> config.quotedStringOpt, (context, val) -> config.quotedStringOpt = val))
                                 .helpFunc(() -> Text.of("This is a quoted string option")))
                         .option((unused) -> SimpleOptions.quotedString("greedy", source)
-                                .valueAccess(Defaults.defaultValueAccess(() -> config.greedyStringOpt, (val) -> config.greedyStringOpt = val))
+                                .valueAccess(Defaults.defaultValueAccess((context) -> config.greedyStringOpt, (context, val) -> config.greedyStringOpt = val))
                                 .helpFunc(() -> Text.of("This is a greedy string option"))))
                 .option((source) -> SimpleOptions.bool("boolean", source)
-                        .valueAccess(Defaults.defaultValueAccess(() -> config.boolOpt, (val) -> config.boolOpt = val))
+                        .valueAccess(Defaults.defaultValueAccess((context) -> config.boolOpt, (context, val) -> config.boolOpt = val))
                         .helpFunc(() -> Text.of("This is a boolean option")))
                 .option((source) -> ExtendedOptions.enumArg("enum", Config.ExampleEnum.class, source)
-                        .valueAccess(Defaults.defaultValueAccess(() -> config.enumOpt, (val) -> config.enumOpt = val))
+                        .valueAccess(Defaults.defaultValueAccess((context) -> config.enumOpt, (context, val) -> config.enumOpt = val))
                         .helpFunc(() -> Text.of("This is an enum option")))
                 .option((source) -> ExtendedOptions.intList("list", source)
-                        .elementAccess(Defaults.defaultElementAccess(() -> config.intListOpt))
-                        .valueAccess(Defaults.defaultValueAccess(() -> config.intListOpt, (val) -> config.intListOpt = val))
+                        .elementAccess(Defaults.defaultElementAccess((context) -> config.intListOpt))
+                        .valueAccess(Defaults.defaultValueAccess((context) -> config.intListOpt, (context, val) -> config.intListOpt = val))
                         .helpFunc(() -> Text.of("This is a list option")))
                 .helpFunc(() -> Text.of("This is a test command\nAnd this is a second line!"))
                 .saveFunc(config::save)

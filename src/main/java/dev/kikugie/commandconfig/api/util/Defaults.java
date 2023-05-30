@@ -11,10 +11,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -49,11 +46,11 @@ public class Defaults {
      * @param <T> Value type
      * @return {@link OptionValueAccess} to be passed to an option
      */
-    public static <T> OptionValueAccess<T> defaultValueAccess(Supplier<T> getter, Consumer<T> setter) {
+    public static <T, S extends CommandSource> OptionValueAccess<T, S> defaultValueAccess(Function<CommandContext<S>, T> getter, BiConsumer<CommandContext<S>, T> setter) {
         return new OptionValueAccess<>(
-                () -> Reference.translated("commandconfig.response.option.get", getter.get()),
-                (val) -> {
-                    setter.accept(val);
+                (context) -> Reference.translated("commandconfig.response.option.get", getter.apply(context)),
+                (context, val) -> {
+                    setter.accept(context, val);
                     return Reference.translated("commandconfig.response.option.set", val);
                 });
     }
@@ -73,27 +70,27 @@ public class Defaults {
      * @param <T> Value type
      * @return {@link ListElementAccess} to be passed to a list option
      */
-    public static <L extends List<T>, T> ListElementAccess<T> defaultElementAccess(Supplier<L> listSupplier) {
+    public static <L extends List<T>, T, S extends CommandSource> ListElementAccess<T, S> defaultElementAccess(Function<CommandContext<S>, L> listSupplier) {
         return new ListElementAccess<>(
-                (index) -> {
-                    L list = listSupplier.get();
+                (context,index) -> {
+                    L list = listSupplier.apply(context);
                     return index >= 0 && index < list.size() ? Reference.translated("commandconfig.response.option.element.get", list.get(index)) : Reference.translated("commandconfig.response.error.invalid_index", index);
                 },
-                (index, value) -> {
-                    L list = listSupplier.get();
+                (context,index, value) -> {
+                    L list = listSupplier.apply(context);
                     if (index >= 0 && index < list.size()) {
                         list.set(index, value);
                         return Reference.translated("commandconfig.response.option.element.set", value, index);
                     }
                     return Reference.translated("commandconfig.response.error.invalid_index", index);
                 },
-                (value) -> {
-                    L list = listSupplier.get();
+                (context,value) -> {
+                    L list = listSupplier.apply(context);
                     list.add(value);
                     return Reference.translated("commandconfig.response.option.element.add", value, list.size());
                 },
-                (index) -> {
-                    L list = listSupplier.get();
+                (context,index) -> {
+                    L list = listSupplier.apply(context);
                     if (index >= 0 && index < list.size()) {
                         T value = list.get(index);
                         // Uses removeAll to avoid remove method ambiguity

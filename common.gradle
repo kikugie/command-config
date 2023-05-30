@@ -152,31 +152,32 @@ modrinth {
     projectId = project.mod_id
     versionName = project.mod_name + " " + project.mod_version + " for " + project.game_versions
     versionNumber = project.mod_version
-    versionType = "release"
+    versionType = "beta"
     uploadFile = remapJar
     additionalFiles = [sourcesJar]
     gameVersions = project.modrinth_versions.split(" ").toList()
     loaders = ["fabric", "quilt"]
     dependencies {
+        required.project "fabric-api"
     }
     syncBodyFrom = rootProject.file("README.md").text
     changelog = rootProject.file("CHANGELOG.md").text
     failSilently = true
-    debugMode = true // safety, disable to actually publish
+    debugMode = false // safety, disable to actually publish
 }
 
 githubRelease {
     token = env.fetch("GITHUB_TOKEN", "")
     owner = project.repo_owner
     repo = project.mod_id
-    tagName = "v${project.mod_version}"
+    tagName = "${project.mod_version}+${project.game_versions}"
     targetCommitish = "multi"
-    releaseName = project.mod_name + " " + project.mod_version
+    releaseName = project.mod_name + " " + project.mod_version + " for " + project.game_versions
     body = rootProject.file("CHANGELOG.md").text
-    draft = mcVersion > 11900 // first file should be false
     releaseAssets = [remapJar, sourcesJar]
+    prerelease = true
     allowUploadToExisting = true // allows publishing multiple files
-    dryRun = true // safety, disable to actually publish
+    dryRun = false // safety, disable to actually publish
 }
 
 // configure the maven publication

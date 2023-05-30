@@ -83,7 +83,7 @@ public interface OptionBuilder<T, S extends CommandSource> extends CommandNode<S
      * @param access {@link OptionValueAccess} instance
      * @return this
      */
-    OptionBuilder<T, S> valueAccess(@NotNull OptionValueAccess<T> access);
+    OptionBuilder<T, S> valueAccess(@NotNull OptionValueAccess<T, S> access);
 
     /**
      * Interface for modifying config state.
@@ -92,7 +92,8 @@ public interface OptionBuilder<T, S extends CommandSource> extends CommandNode<S
      * @param setter Accepts new value and returns response {@link Text}
      * @return this
      */
-    OptionBuilder<T, S> valueAccess(@NotNull Supplier<Text> getter, @NotNull Function<T, Text> setter);
+    OptionBuilder<T, S> valueAccess(@NotNull Function<CommandContext<S>, Text> getter,
+                                    @NotNull BiFunction<CommandContext<S>, T, Text> setter);
 
     /**
      * Adds a listener that is invoked upon changing the value.

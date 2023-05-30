@@ -153,6 +153,5 @@ public interface CommandConfigBuilder<S extends CommandSource> extends CommandNo
      * @return Top level command node with all branches.
      */
     @NotNull
-    @Override
     LiteralArgumentBuilder<S> build();
 }

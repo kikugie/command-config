@@ -1,5 +1,7 @@
 package dev.kikugie.commandconfig.api.option.access;
 
+import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -7,44 +9,44 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
-public class OptionValueAccess<T> {
+public class OptionValueAccess<T, S extends CommandSource> {
     protected final List<BiConsumer<T, String>> listeners = new ArrayList<>();
-    private final Supplier<Text> getter;
-    private final Function<T, Text> setter;
+    private final Function<CommandContext<S>, Text> getter;
+    private final BiFunction<CommandContext<S>, T, Text> setter;
     @Nullable
     private String name;
 
     public OptionValueAccess(@NotNull String name,
-                             @NotNull Supplier<Text> getter,
-                             @NotNull Function<T, Text> setter) {
+                             @NotNull Function<CommandContext<S>, Text> getter,
+                             @NotNull BiFunction<CommandContext<S>, T, Text> setter) {
         this.getter = getter;
         this.setter = setter;
         this.name = name;
     }
 
-    public OptionValueAccess(@NotNull Supplier<Text> getter,
-                             @NotNull Function<T, Text> setter) {
+    public OptionValueAccess(@NotNull Function<CommandContext<S>, Text> getter,
+                             @NotNull BiFunction<CommandContext<S>, T, Text> setter) {
         this.getter = getter;
         this.setter = setter;
     }
 
-    public OptionValueAccess<T> name(@NotNull String name) {
+    public OptionValueAccess<T, S> name(@NotNull String name) {
         this.name = name;
         return this;
     }
 
-    public Text set(@NotNull T val) {
-        Text result = setter.apply(val);
+    public Text set(@NotNull CommandContext<S> context, @NotNull T val) {
+        Text result = setter.apply(context, val);
         listeners.forEach(it -> it.accept(val, name));
         return result;
     }
 
-    public Text get() {
-        return getter.get();
+    public Text get(@NotNull CommandContext<S> context) {
+        return getter.apply(context);
     }
 
     public void addListener(@NotNull BiConsumer<T, String> listener) {

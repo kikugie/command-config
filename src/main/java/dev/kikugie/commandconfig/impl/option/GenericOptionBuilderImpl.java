@@ -29,7 +29,8 @@ public class GenericOptionBuilderImpl<T, S extends CommandSource> extends Option
         this.typeName = valueType.getSimpleName();
     }
 
-    public @NotNull LiteralArgumentBuilder<S> build() {
+    @NotNull
+    public LiteralArgumentBuilder<S> build() {
         Validate.notNull(printFunc, Reference.optionError(name, Reference.NO_PRINT_FUNC));
         if (extraNodes.isEmpty())
             Validate.notNull(valueAccess, Reference.optionError(name, Reference.NO_VALUE_ACCESS));
@@ -40,13 +41,13 @@ public class GenericOptionBuilderImpl<T, S extends CommandSource> extends Option
             return option;
 
         // Getter node
-        option.executes(context -> print(context, valueAccess.get()));
+        option.executes(context -> print(context, valueAccess.get(context)));
 
         // Setter node
         RequiredArgumentBuilder<S, T> argument = argument(typeName, argumentType);
         argument.executes(context -> {
             T newVal = context.getArgument(typeName, valueType);
-            int result = print(context, valueAccess.set(newVal));
+            int result = print(context, valueAccess.set(context, newVal));
 
             save();
             return result;
