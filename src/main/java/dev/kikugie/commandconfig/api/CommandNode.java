@@ -13,17 +13,17 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface CommandNode<S extends CommandSource> {
     /**
-     * Runs @code{printFunc}
+     * Runs {@code printFunc}
      */
     int print(CommandContext<S> context, Text text);
 
     /**
-     * Runs @code{helpFunc}
+     * Runs {@code helpFunc}
      */
     int help(CommandContext<S> context);
 
     /**
-     * Runs @code{saveFunc}
+     * Runs {@code saveFunc}
      */
     void save();
 

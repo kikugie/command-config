@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public class Reference {
-    public static final String MOD_ID = "commandconfig";
+    public static final String MOD_ID = "command-config";
     public static final String MOD_VERSION = "0.1.0";
     public static final String MOD_NAME = "Command Config Lib";
     public static final String ALLOWED_NAMES = "^[a-zA-Z0-9-_]+$";

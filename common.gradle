@@ -140,6 +140,13 @@ jar {
     }
 }
 
+tasks.register("release") {
+    group = "publishing"
+
+    dependsOn "modrinth"
+    dependsOn "githubRelease"
+}
+
 modrinth {
     token = env.fetchOrNull("MODRINTH_TOKEN")
     projectId = project.mod_id
@@ -166,7 +173,7 @@ githubRelease {
     targetCommitish = "multi"
     releaseName = project.mod_name + " " + project.mod_version
     body = rootProject.file("CHANGELOG.md").text
-    draft = mcVersion > 11605 // first file should be false
+    draft = mcVersion > 11900 // first file should be false
     releaseAssets = [remapJar, sourcesJar]
     allowUploadToExisting = true // allows publishing multiple files
     dryRun = true // safety, disable to actually publish

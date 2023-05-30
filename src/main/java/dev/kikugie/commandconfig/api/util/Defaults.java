@@ -2,7 +2,6 @@ package dev.kikugie.commandconfig.api.util;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.datafixers.types.Func;
 import com.mojang.datafixers.util.Pair;
 import dev.kikugie.commandconfig.Reference;
 import dev.kikugie.commandconfig.api.option.access.ListElementAccess;
@@ -20,10 +19,10 @@ import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
+import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+
 //#if MC > 11802
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-
-import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 //#else
 //$$ import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 //#endif
