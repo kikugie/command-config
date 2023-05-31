@@ -20,14 +20,11 @@ import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
 @ApiStatus.Internal
 public abstract class OptionBuilderImpl<T, S extends CommandSource> extends CommandNodeImpl<S> implements OptionBuilder<T, S> {
-    protected final String name;
     protected final List<Consumer<LiteralArgumentBuilder<S>>> extraNodes = new ArrayList<>();
     protected OptionValueAccess<T, S> valueAccess;
 
     public OptionBuilderImpl(String name, Class<S> type) {
-        super(type);
-        this.name = name;
-
+        super(name, type);
         Validate.matchesPattern(name, Reference.ALLOWED_NAMES, Reference.optionError(name, Reference.INVALID_NAME));
     }
 

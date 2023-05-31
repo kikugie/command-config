@@ -25,19 +25,17 @@ import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 @ApiStatus.Internal
 public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNodeImpl<S> implements CommandConfigBuilder<S> {
     protected final List<Consumer<LiteralArgumentBuilder<S>>> extraNodes = new ArrayList<>();
-    private final String baseCommand;
     private final List<CategoryBuilderImpl<S>> categories = new ArrayList<>();
     private final List<OptionBuilderImpl<?, S>> options = new ArrayList<>();
 
     public CommandConfigBuilderImpl(String command, Class<S> type) {
-        super(type);
-        this.baseCommand = command;
-        Validate.matchesPattern(command, Reference.ALLOWED_NAMES, Reference.baseError(baseCommand, Reference.INVALID_NAME));
+        super(command, type);
+        Validate.matchesPattern(command, Reference.ALLOWED_NAMES, Reference.baseError(name, Reference.INVALID_NAME));
     }
 
     @Override
     public CommandConfigBuilder<S> node(@NotNull Consumer<LiteralArgumentBuilder<S>> node) {
-        Validate.notNull(node, Reference.baseError(baseCommand, Reference.NULL_NODE));
+        Validate.notNull(node, Reference.baseError(name, Reference.NULL_NODE));
 
         this.extraNodes.add(node);
         return this;
@@ -45,7 +43,7 @@ public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNo
 
     @Override
     public CommandConfigBuilder<S> category(@NotNull Function<Class<S>, CategoryBuilder<S>> category) {
-        Validate.notNull(category, Reference.baseError(baseCommand, Reference.NULL_CATEGORY));
+        Validate.notNull(category, Reference.baseError(name, Reference.NULL_CATEGORY));
 
         this.categories.add((CategoryBuilderImpl<S>) category.apply(type));
         return this;
@@ -53,7 +51,7 @@ public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNo
 
     @Override
     public CommandConfigBuilder<S> option(@NotNull Function<Class<S>, OptionBuilder<?, S>> option) {
-        Validate.notNull(option, Reference.baseError(baseCommand, Reference.NULL_OPTION));
+        Validate.notNull(option, Reference.baseError(name, Reference.NULL_OPTION));
 
         this.options.add((OptionBuilderImpl<?, S>) option.apply(type));
         return this;
@@ -80,7 +78,7 @@ public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNo
     @Nullable
     @Override
     public LiteralArgumentBuilder<S> buildHelpFunc() {
-        Validate.notNull(printFunc, Reference.baseError(baseCommand, Reference.NO_PRINT_FUNC));
+        Validate.notNull(printFunc, Reference.baseError(name, Reference.NO_PRINT_FUNC));
 
         LiteralArgumentBuilder<S> command = literal("help");
 
@@ -94,7 +92,7 @@ public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNo
     @NotNull
     @Override
     public LiteralArgumentBuilder<S> build() {
-        LiteralArgumentBuilder<S> command = literal(baseCommand);
+        LiteralArgumentBuilder<S> command = literal(name);
         extraNodes.forEach(it -> it.accept(command));
         buildNodes(command, options);
         buildNodes(command, categories);

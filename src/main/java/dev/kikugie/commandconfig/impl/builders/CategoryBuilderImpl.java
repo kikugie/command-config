@@ -23,15 +23,12 @@ import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
 @ApiStatus.Internal
 public class CategoryBuilderImpl<S extends CommandSource> extends CommandNodeImpl<S> implements CategoryBuilder<S> {
-    protected final String name;
     protected final List<CategoryBuilderImpl<S>> categories = new ArrayList<>();
     protected final List<OptionBuilderImpl<?, S>> options = new ArrayList<>();
     protected final List<Consumer<LiteralArgumentBuilder<S>>> extraNodes = new ArrayList<>();
 
     public CategoryBuilderImpl(String name, Class<S> type) {
-        super(type);
-        this.name = name;
-
+        super(name, type);
         Validate.matchesPattern(name, Reference.ALLOWED_NAMES, Reference.categoryError(name, Reference.INVALID_NAME));
     }
 

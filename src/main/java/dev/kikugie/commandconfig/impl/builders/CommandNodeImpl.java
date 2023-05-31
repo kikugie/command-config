@@ -2,9 +2,11 @@ package dev.kikugie.commandconfig.impl.builders;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import dev.kikugie.commandconfig.Reference;
 import dev.kikugie.commandconfig.api.CommandNode;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
+import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,6 +18,7 @@ import java.util.function.Supplier;
 @ApiStatus.Internal
 @SuppressWarnings("unused")
 public abstract class CommandNodeImpl<S extends CommandSource> implements CommandNode<S> {
+    protected final String name;
     protected final Class<S> type;
     protected BiFunction<CommandContext<S>, Text, Integer> printFunc;
     @Nullable
@@ -24,18 +27,23 @@ public abstract class CommandNodeImpl<S extends CommandSource> implements Comman
     @Nullable
     protected Supplier<Text> helpFunc;
 
-    protected CommandNodeImpl(Class<S> type) {
+    protected CommandNodeImpl(String name, Class<S> type) {
+        this.name = name;
         this.type = type;
     }
 
     @Override
     public int print(CommandContext<S> context, Text text) {
+        Validate.notNull(printFunc, Reference.nodeError(name, Reference.NO_PRINT_FUNC));
+
         return printFunc.apply(context, text);
     }
 
     @Override
     public int help(CommandContext<S> context) {
-        return printFunc != null && helpFunc != null ? printFunc.apply(context, helpFunc.get()) : -1;
+        Validate.notNull(printFunc, Reference.nodeError(name, Reference.NO_PRINT_FUNC));
+
+        return helpFunc != null ? printFunc.apply(context, helpFunc.get()) : -1;
     }
 
     @Override

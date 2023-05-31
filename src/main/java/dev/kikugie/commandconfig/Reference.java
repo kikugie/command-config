@@ -21,10 +21,12 @@ public class Reference {
     public static final String NULL_LISTENER = "Listener can't be null for %s \"%s\"";
     public static final String NULL_ELEMENT_ACCESS = "Element access can't be null for %s \"%s\"";
     public static final String NULL_VALUE_ACCESS = "Value access can't be null for %s \"%s\"";
-    public static final String NO_PRINT_FUNC = "No print function for %s \"%s\".\nAdd it using `.printFunc` on current or any higher node.";
-    public static final String NO_ELEMENT_LISTENER = "No element access for list %s \"%s\".\nAdd it using `.elementAccess()` before adding listeners.";
-    public static final String NO_VALUE_LISTENER = "No value access for %s \"%s\".\nAdd it using `.valueAccess()` before adding listeners.";
-    public static final String NO_VALUE_ACCESS = "No value access for %s \"%s\".\nAdd it using `.valueAccess()`.";
+    public static final String NO_PRINT_FUNC = "No print function for %s \"%s\".\nAdd it using `printFunc` on current or any higher node.";
+    public static final String NO_HELP_FUNC = "No help function for %s \"%s\".\nAdd it using `helpFunc` on current or any higher node.";
+    public static final String NO_SAVE_FUNC = "No save function for %s \"%s\".\nAdd it using `saveFunc` on current or any higher node.";
+    public static final String NO_ELEMENT_LISTENER = "No element access for list %s \"%s\".\nAdd it using `elementAccess()` before adding listeners.";
+    public static final String NO_VALUE_LISTENER = "No value access for %s \"%s\".\nAdd it using `valueAccess()` before adding listeners.";
+    public static final String NO_VALUE_ACCESS = "No value access for %s \"%s\".\nAdd it using `valueAccess()`.";
     public static final Supplier<Text> NO_HELP_SAD = () -> translated("commandconfig.response.error.no_help_func");
 
     public static String optionError(String name, String error) {
@@ -37,6 +39,9 @@ public class Reference {
 
     public static String baseError(String name, String error) {
         return String.format(error, "command", name);
+    }
+    public static String nodeError(String name, String error) {
+        return String.format(error, "node", name);
     }
 
 
