@@ -1,7 +1,7 @@
 package dev.kikugie.commandconfig.api.builders;
 
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.api.CommandNode;
 import dev.kikugie.commandconfig.api.option.ExtendedOptions;
@@ -12,10 +12,7 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 /**
  * Option node in the command.
@@ -55,7 +52,7 @@ public interface OptionBuilder<T, S extends CommandSource> extends CommandNode<S
      * Produced command:
      * <pre>{@code
      * /... example -> get value
-     *              \> <Integer> -> set value
+     *              \> [Integer] -> set value
      * }</pre>
      *
      * @param name         option name. Cannot contain spaces
@@ -72,10 +69,13 @@ public interface OptionBuilder<T, S extends CommandSource> extends CommandNode<S
 
     /**
      * Adds a custom command node to the option. Here be dragons!
+     * <br>
+     * Passed consumer receives parent command node instance during build.
+     *
      * @param node Command node builder
      * @return this
      */
-    OptionBuilder<T, S> node(@NotNull ArgumentBuilder<S, ?> node);
+    OptionBuilder<T, S> node(@NotNull Consumer<LiteralArgumentBuilder<S>> node);
 
     /**
      * Interface for modifying config state.
@@ -96,12 +96,22 @@ public interface OptionBuilder<T, S extends CommandSource> extends CommandNode<S
                                     @NotNull BiFunction<CommandContext<S>, T, Text> setter);
 
     /**
+     * Variant of normal {@code valueAccess} without command context.
+     *
+     * @param getter Gets the value and returns response {@link Text}
+     * @param setter Accepts new value and returns response {@link Text}
+     * @return this
+     */
+    OptionBuilder<T, S> valueAccess(@NotNull Supplier<Text> getter,
+                                    @NotNull Function<T, Text> setter);
+
+    /**
      * Adds a listener that is invoked upon changing the value.
      *
      * @param listener Accepts new value and option's name
      * @return this
      */
-    OptionBuilder<T, S> listener(@NotNull BiConsumer<T, String> listener);
+    OptionBuilder<T, S> listener(@NotNull BiConsumer<String, T> listener);
 
     /**
      * Specifies result output function.

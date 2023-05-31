@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 @SuppressWarnings("unused")
 public class OptionValueAccess<T, S extends CommandSource> {
-    protected final List<BiConsumer<T, String>> listeners = new ArrayList<>();
+    protected final List<BiConsumer<String, T>> listeners = new ArrayList<>();
     private final Function<CommandContext<S>, Text> getter;
     private final BiFunction<CommandContext<S>, T, Text> setter;
     @Nullable
@@ -41,7 +41,7 @@ public class OptionValueAccess<T, S extends CommandSource> {
 
     public Text set(@NotNull CommandContext<S> context, @NotNull T val) {
         Text result = setter.apply(context, val);
-        listeners.forEach(it -> it.accept(val, name));
+        listeners.forEach(it -> it.accept(name, val));
         return result;
     }
 
@@ -49,7 +49,7 @@ public class OptionValueAccess<T, S extends CommandSource> {
         return getter.apply(context);
     }
 
-    public void addListener(@NotNull BiConsumer<T, String> listener) {
+    public void addListener(@NotNull BiConsumer<String, T> listener) {
         listeners.add(listener);
     }
 }

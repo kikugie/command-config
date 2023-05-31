@@ -4,7 +4,7 @@ commandconfig:
       no_help_func: §4This category doesn't have a description :(
       too_few_args: §4Too few arguments
       invalid_enum: "§4Invalid enum value: %s"
-      invalid_index: "§4Index %s is out of bounds"
+      invalid_index: "§4Index %s is out of bounds for size %s"
     option:
       get: "Option value: %s"
       set: "Option value set to: %s"

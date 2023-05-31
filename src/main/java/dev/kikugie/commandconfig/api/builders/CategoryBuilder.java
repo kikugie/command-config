@@ -1,6 +1,6 @@
 package dev.kikugie.commandconfig.api.builders;
 
-import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.api.CommandNode;
 import dev.kikugie.commandconfig.impl.builders.CategoryBuilderImpl;
@@ -9,6 +9,7 @@ import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -41,10 +42,12 @@ public interface CategoryBuilder<S extends CommandSource> extends CommandNode<S>
 
     /**
      * Adds a custom command node to the category. Here be dragons!
+     * <br>
+     * Passed consumer receives parent command node instance during build.
      * @param node Command node builder
      * @return this
      */
-    CategoryBuilder<S> node(@NotNull ArgumentBuilder<S, ?> node);
+    CategoryBuilder<S> node(@NotNull Consumer<LiteralArgumentBuilder<S>> node);
 
     /**
      * Creates a category, which can contain options and other categories.

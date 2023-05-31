@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * List option node
@@ -109,10 +110,26 @@ public interface ListOptionBuilder<L extends List<T>, T, S extends CommandSource
                                              @NotNull BiFunction<CommandContext<S>, Integer, Pair<@Nullable T, Text>> remover);
 
     /**
+     * Variant of normal {@code elementAccess} without command context.
+     * <br>
+     * <h2>Index bounds must be checked by the config state or provided functions</h2>
+     *
+     * @param getter   Gets list element and returns response {@link Text}
+     * @param setter   Accepts new element at specified index and returns response {@link Text}
+     * @param appender Accepts new element to append at the end of the list and returns response {@link Text}
+     * @param remover  Accepts element index, returns removed value and response {@link Text}
+     * @return this
+     */
+    ListOptionBuilder<L, T, S> elementAccess(@NotNull Function<Integer, Text> getter,
+                                             @NotNull BiFunction<Integer, T, Text> setter,
+                                             @NotNull Function<T, Text> appender,
+                                             @NotNull Function<Integer, Pair<@Nullable T, Text>> remover);
+
+    /**
      * Adds a listener that is invoked upon changing an element.
      *
      * @param listener Accepts new value and option's name
      * @return this
      */
-    ListOptionBuilder<L, T, S> elementListener(@NotNull BiConsumer<T, String> listener);
+    ListOptionBuilder<L, T, S> elementListener(@NotNull BiConsumer<String, T> listener);
 }

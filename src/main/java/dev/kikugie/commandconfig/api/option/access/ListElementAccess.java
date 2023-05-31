@@ -15,7 +15,7 @@ import java.util.function.BiFunction;
 
 @SuppressWarnings("unused")
 public class ListElementAccess<T, S extends CommandSource> {
-    private final List<BiConsumer<T, String>> listeners = new ArrayList<>();
+    private final List<BiConsumer<String, T>> listeners = new ArrayList<>();
     private final TriFunction<CommandContext<S>, Integer, T, Text> elementSetter;
     private final BiFunction<CommandContext<S>, Integer, Text> elementGetter;
     private final BiFunction<CommandContext<S>, T, Text> elementAppender;
@@ -54,7 +54,7 @@ public class ListElementAccess<T, S extends CommandSource> {
 
     public Text set(@NotNull CommandContext<S> context, int index, @NotNull T val) {
         Text result = elementSetter.apply(context, index, val);
-        listeners.forEach(it -> it.accept(val, name));
+        listeners.forEach(it -> it.accept(name, val));
         return result;
     }
 
@@ -64,17 +64,17 @@ public class ListElementAccess<T, S extends CommandSource> {
 
     public Text append(@NotNull CommandContext<S> context, @NotNull T val) {
         Text result = elementAppender.apply(context, val);
-        listeners.forEach(it -> it.accept(val, name));
+        listeners.forEach(it -> it.accept(name, val));
         return result;
     }
 
     public Text remove(@NotNull CommandContext<S> context, int index) {
         Pair<T, Text> result = elementRemover.apply(context, index);
-        listeners.forEach(it -> it.accept(result.getFirst(), name));
+        listeners.forEach(it -> it.accept(name, result.getFirst()));
         return result.getSecond();
     }
 
-    public void addListener(@NotNull BiConsumer<T, String> listener) {
+    public void addListener(@NotNull BiConsumer<String, T> listener) {
         listeners.add(listener);
     }
 }

@@ -1,6 +1,5 @@
 package dev.kikugie.commandconfig.impl.builders;
 
-import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.Reference;
@@ -15,17 +14,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
 @ApiStatus.Internal
 public abstract class OptionBuilderImpl<T, S extends CommandSource> extends CommandNodeImpl<S> implements OptionBuilder<T, S> {
     protected final String name;
-    protected final List<ArgumentBuilder<S, ?>> extraNodes = new ArrayList<>();
+    protected final List<Consumer<LiteralArgumentBuilder<S>>> extraNodes = new ArrayList<>();
     protected OptionValueAccess<T, S> valueAccess;
 
     public OptionBuilderImpl(String name, Class<S> type) {
@@ -36,8 +32,8 @@ public abstract class OptionBuilderImpl<T, S extends CommandSource> extends Comm
     }
 
     @Override
-    public OptionBuilder<T, S> node(@NotNull ArgumentBuilder<S, ?> node) {
-        Validate.notNull(node, Reference.baseError(name, Reference.NULL_NODE));
+    public OptionBuilder<T, S> node(@NotNull Consumer<LiteralArgumentBuilder<S>> node) {
+        Validate.notNull(node, Reference.optionError(name, Reference.NULL_NODE));
 
         this.extraNodes.add(node);
         return this;
@@ -52,13 +48,21 @@ public abstract class OptionBuilderImpl<T, S extends CommandSource> extends Comm
     }
 
     @Override
-    public OptionBuilder<T, S> valueAccess(@NotNull Function<CommandContext<S>, Text> getter, @NotNull BiFunction<CommandContext<S>, T, Text> setter) {
+    public OptionBuilder<T, S> valueAccess(@NotNull Function<CommandContext<S>, Text> getter,
+                                           @NotNull BiFunction<CommandContext<S>, T, Text> setter) {
         this.valueAccess = new OptionValueAccess<>(name, getter, setter);
         return this;
     }
 
     @Override
-    public OptionBuilder<T, S> listener(@NotNull BiConsumer<T, String> listener) {
+    public OptionBuilder<T, S> valueAccess(@NotNull Supplier<Text> getter,
+                                           @NotNull Function<T, Text> setter) {
+        this.valueAccess = new OptionValueAccess<>(name, (context) -> getter.get(), (context, t) -> setter.apply(t));
+        return this;
+    }
+
+    @Override
+    public OptionBuilder<T, S> listener(@NotNull BiConsumer<String, T> listener) {
         Validate.notNull(listener, Reference.optionError(name, Reference.NULL_LISTENER));
         Validate.notNull(printFunc, Reference.optionError(name, Reference.NO_VALUE_LISTENER));
 

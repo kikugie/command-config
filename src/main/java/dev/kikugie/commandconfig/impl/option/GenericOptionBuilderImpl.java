@@ -36,7 +36,7 @@ public class GenericOptionBuilderImpl<T, S extends CommandSource> extends Option
             Validate.notNull(valueAccess, Reference.optionError(name, Reference.NO_VALUE_ACCESS));
 
         LiteralArgumentBuilder<S> option = literal(name);
-        extraNodes.forEach(option::then);
+        extraNodes.forEach(it -> it.accept(option));
         if (valueAccess == null)
             return option;
 

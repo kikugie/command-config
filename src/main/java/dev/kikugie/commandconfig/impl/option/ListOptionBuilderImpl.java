@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
@@ -64,7 +65,20 @@ public class ListOptionBuilderImpl<L extends List<T>, T, S extends CommandSource
     }
 
     @Override
-    public ListOptionBuilder<L, T, S> elementListener(@NotNull BiConsumer<T, String> listener) {
+    public ListOptionBuilder<L, T, S> elementAccess(@NotNull Function<Integer, Text> getter,
+                                                    @NotNull BiFunction<Integer, T, Text> setter,
+                                                    @NotNull Function<T, Text> appender,
+                                                    @NotNull Function<Integer, Pair<@Nullable T, Text>> remover) {
+        this.elementAccess = new ListElementAccess<>(name,
+                (context, index) -> getter.apply(index),
+                (context, index, val) -> setter.apply(index, val),
+                (context, val) -> appender.apply(val),
+                (context, index) -> remover.apply(index));
+        return this;
+    }
+
+    @Override
+    public ListOptionBuilder<L, T, S> elementListener(@NotNull BiConsumer<String, T> listener) {
         Validate.notNull(listener, Reference.optionError(name, Reference.NULL_LISTENER));
         Validate.notNull(elementAccess, Reference.optionError(name, Reference.NO_ELEMENT_LISTENER));
 
@@ -79,7 +93,7 @@ public class ListOptionBuilderImpl<L extends List<T>, T, S extends CommandSource
             Validate.notNull(valueAccess, Reference.optionError(name, Reference.NO_VALUE_ACCESS));
 
         LiteralArgumentBuilder<S> option = literal(name);
-        extraNodes.forEach(option::then);
+        extraNodes.forEach(it -> it.accept(option));
         if (valueAccess == null)
             return option;
 

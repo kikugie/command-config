@@ -1,6 +1,5 @@
 package dev.kikugie.commandconfig.impl.builders;
 
-import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.Reference;
@@ -17,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -24,7 +24,7 @@ import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
 @ApiStatus.Internal
 public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNodeImpl<S> implements CommandConfigBuilder<S> {
-    protected final List<ArgumentBuilder<S, ?>> extraNodes = new ArrayList<>();
+    protected final List<Consumer<LiteralArgumentBuilder<S>>> extraNodes = new ArrayList<>();
     private final String baseCommand;
     private final List<CategoryBuilderImpl<S>> categories = new ArrayList<>();
     private final List<OptionBuilderImpl<?, S>> options = new ArrayList<>();
@@ -36,7 +36,7 @@ public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNo
     }
 
     @Override
-    public CommandConfigBuilder<S> node(@NotNull ArgumentBuilder<S, ?> node) {
+    public CommandConfigBuilder<S> node(@NotNull Consumer<LiteralArgumentBuilder<S>> node) {
         Validate.notNull(node, Reference.baseError(baseCommand, Reference.NULL_NODE));
 
         this.extraNodes.add(node);
@@ -95,7 +95,7 @@ public class CommandConfigBuilderImpl<S extends CommandSource> extends CommandNo
     @Override
     public LiteralArgumentBuilder<S> build() {
         LiteralArgumentBuilder<S> command = literal(baseCommand);
-        extraNodes.forEach(command::then);
+        extraNodes.forEach(it -> it.accept(command));
         buildNodes(command, options);
         buildNodes(command, categories);
 

@@ -1,6 +1,5 @@
 package dev.kikugie.commandconfig.impl.builders;
 
-import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.Reference;
@@ -16,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -26,7 +26,7 @@ public class CategoryBuilderImpl<S extends CommandSource> extends CommandNodeImp
     protected final String name;
     protected final List<CategoryBuilderImpl<S>> categories = new ArrayList<>();
     protected final List<OptionBuilderImpl<?, S>> options = new ArrayList<>();
-    protected final List<ArgumentBuilder<S, ?>> extraNodes = new ArrayList<>();
+    protected final List<Consumer<LiteralArgumentBuilder<S>>> extraNodes = new ArrayList<>();
 
     public CategoryBuilderImpl(String name, Class<S> type) {
         super(type);
@@ -36,7 +36,7 @@ public class CategoryBuilderImpl<S extends CommandSource> extends CommandNodeImp
     }
 
     @Override
-    public CategoryBuilder<S> node(@NotNull ArgumentBuilder<S, ?> node) {
+    public CategoryBuilder<S> node(@NotNull Consumer<LiteralArgumentBuilder<S>> node) {
         Validate.notNull(node, Reference.categoryError(name, Reference.NULL_NODE));
 
         extraNodes.add(node);
@@ -93,7 +93,7 @@ public class CategoryBuilderImpl<S extends CommandSource> extends CommandNodeImp
     @NotNull
     public LiteralArgumentBuilder<S> build() {
         LiteralArgumentBuilder<S> category = literal(name);
-        extraNodes.forEach(category::then);
+        extraNodes.forEach(it -> it.accept(category));
         buildNodes(category, options);
         buildNodes(category, categories);
 
