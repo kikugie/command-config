@@ -21,6 +21,7 @@ import java.util.concurrent.CompletableFuture;
  * @see <a href="https://github.com/Earthcomputer/clientcommands/blob/fabric/src/main/java/net/earthcomputer/clientcommands/command/arguments/ListArgumentType.java">Source code</a>
  * @see <a href="https://modrinth.com/mod/client-commands">Mod page</a>
  */
+// TODO (long-term): Add ability to set value to an empty list
 public class ListArgumentType<T, U extends ArgumentType<T>> implements ArgumentType<List<T>> {
     private static final SimpleCommandExceptionType TOO_FEW_ARGUMENTS_EXCEPTION = new SimpleCommandExceptionType(
             Reference.translated("commandconfig.response.error.too_few_args"));

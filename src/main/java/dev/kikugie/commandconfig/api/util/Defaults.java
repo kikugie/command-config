@@ -15,19 +15,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-//#if MC > 11802
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-//#else
-//$$ import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
-//#endif
-
-/* backup in case formatter yeets it
-    //#if MC > 11802
-    import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-    //#else
-    //$$ import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
-    //#endif
- */
 
 @SuppressWarnings("unused")
 public class Defaults {

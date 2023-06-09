@@ -3,7 +3,7 @@ plugins {
     id 'fabric-loom' version '1.2-SNAPSHOT' apply false
 
     // https://github.com/Juuxel/LoomQuiltflower
-    id 'io.github.juuxel.loom-quiltflower' version '1.8.0' apply false
+//    id 'io.github.juuxel.loom-quiltflower' version '1.8.0' apply false
 
     // https://github.com/ReplayMod/preprocessor
     // https://github.com/Fallen-Breath/preprocessor
@@ -24,12 +24,13 @@ plugins {
 
 preprocess {
     def mc18 = createNode('1.18.2', 1_18_02, 'yarn')
-    def mc19 = createNode('1.19.4', 1_19_04, 'yarn')
+    def mc20 = createNode('1.20', 1_20_00, 'yarn')
 
-    mc18.link(mc19, null)
+    mc18.link(mc20, file("versions/mapping-1.18-1.20.txt"))
 }
 
 tasks.register('buildAndGather') {
+    group("build")
     subprojects {
         dependsOn project.name + ':build'
     }

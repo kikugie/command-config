@@ -18,6 +18,7 @@ import java.util.function.*;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 
+//TODO: Add a way for custom nodes to appear in the help subcommand
 @ApiStatus.Internal
 public abstract class OptionBuilderImpl<T, S extends CommandSource> extends CommandNodeImpl<S> implements OptionBuilder<T, S> {
     protected final List<Consumer<LiteralArgumentBuilder<S>>> extraNodes = new ArrayList<>();

@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import dev.kikugie.commandconfig.api.CommandNode;
 import dev.kikugie.commandconfig.api.util.Defaults;
 import dev.kikugie.commandconfig.impl.builders.CommandConfigBuilderImpl;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -15,19 +16,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-//#if MC > 11802
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-//#else
-//$$ import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
-//#endif
-
-/* backup in case formatter yeets it
-    //#if MC > 11802
-    import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-    //#else
-    //$$ import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
-    //#endif
- */
 
 /**
  * Main class of the mod.
@@ -104,6 +92,7 @@ public interface CommandConfigBuilder<S extends CommandSource> extends CommandNo
      * Adds a custom command node to the command. Here be dragons!
      * <br>
      * Passed consumer receives parent command node instance during build.
+     *
      * @param node Command node builder
      * @return this
      */
