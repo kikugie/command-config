@@ -41,9 +41,6 @@ dependencies {
 
     // dependencies
     modImplementation fabricApi.module("fabric-command-api-${mcVersion > 11802 ? "v2" : "v1"}", project.fabric_api_version)
-
-    // mixin extensions
-// 	include api(annotationProcessor("com.github.LlamaLad7.mixinextras:mixinextras-fabric:${project.mixin_extras_version}"))
 }
 
 loom {
@@ -179,19 +176,25 @@ githubRelease {
     dryRun = false // safety, disable to actually publish
 }
 
-// configure the maven publication
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId archivesBaseName
-
-            from components.java
+    repositories {
+        maven {
+            name = "kikugieMaven"
+            url = "https://maven.kikugie.dev/releases"
+            credentials(PasswordCredentials)
+            authentication {
+                basic(BasicAuthentication)
+            }
         }
     }
 
-    // select the repositories you want to publish to
-    repositories {
-        // uncomment to publish to the local maven
-        // mavenLocal()
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = project.maven_group + "." + project.archives_base_name
+            artifactId = project.mod_version
+            version = project.game_versions
+
+            from components.java
+        }
     }
 }

@@ -6,8 +6,9 @@ Lightweight command-based config library.
 Commands are rarely affected by Minecraft updates, making this library compatible with most versions, including snapshots.  
 For example, it can be used for:
 - Quick in-game config, as it doesn't require opening another GUI.
-- Snapshot mod support. GUI config libs mostly focus on big Minecraft releases.
-- Multi-version mods. GUI libs are usually version-specific or might be not available for old Minecraft releases.
+- Server-side config. GUI functionality is limited for server mods, which leaves commands as a config option.
+- Snapshot mod support. Other libraries mostly focus on full Minecraft releases, however this one is designed to be easy to port.
+- Multi-version mods. Other libraries may not be available for old versions or have different API for them.
 
 Note that this library doesn't aim to replace supported GUI config for your mod, but rather provide a robust alternative.
 

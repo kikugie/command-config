@@ -124,7 +124,11 @@ public class Defaults {
      */
     public static BiFunction<CommandContext<ServerCommandSource>, Text, Integer> serverPrintFunc() {
         return (context, text) -> {
-            context.getSource().sendFeedback(text, false);
+            //#if MC >= 12000
+            context.getSource().sendFeedback(() -> text, false);
+            //#else
+            //$$ context.getSource().sendFeedback(text, false);
+            //#endif
             return 1;
         };
     }
@@ -136,7 +140,11 @@ public class Defaults {
      */
     public static BiFunction<CommandContext<ServerCommandSource>, Text, Integer> broadcastPrintFunc() {
         return (context, text) -> {
-            context.getSource().sendFeedback(text, true);
+            //#if MC >= 12000
+            context.getSource().sendFeedback(() -> text, true);
+            //#else
+            //$$ context.getSource().sendFeedback(text, true);
+            //#endif
             return 1;
         };
     }

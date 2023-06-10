@@ -8,6 +8,9 @@
     "KikuGie"
   ],
   "contact": {
+    "issues": "https://github.com/kikugie/command-config/issues",
+    "sources": "https://github.com/kikugie/command-config",
+    "homepage": "https://modrinth.com/mod/command-config"
   },
   "license": "LGPL-3.0",
   "icon": "assets/commandconfig/icon.png",
